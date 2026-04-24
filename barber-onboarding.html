@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Sharp Cut Barber Account Setup</title>
+<style>
+  :root {
+    --gold: #b8953a;
+    --gold-light: #dcc17b;
+    --dark: #0c0a06;
+    --panel: rgba(23, 19, 13, 0.94);
+    --muted: rgba(240, 230, 200, 0.7);
+    --border: rgba(184, 149, 58, 0.22);
+    --error: #ff9b8f;
+    --success: #bde7ba;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    color: #f6efdf;
+    background:
+      radial-gradient(circle at top left, rgba(184,149,58,0.14), transparent 30%),
+      linear-gradient(180deg, #0a0805, #120f09 45%, #0a0805);
+    padding: 2rem;
+  }
+
+  a { color: var(--gold-light); }
+
+  .shell {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1.6rem;
+    backdrop-filter: blur(14px);
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--gold);
+    font-size: 0.72rem;
+    margin-bottom: 0.8rem;
+  }
+
+  h1, h2 {
+    font-family: Georgia, serif;
+    font-weight: normal;
+    line-height: 1.05;
+  }
+
+  h1 {
+    font-size: clamp(2.1rem, 4vw, 3.8rem);
+  }
+
+  h2 {
+    font-size: 1.7rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .lead,
+  .copy,
+  .snapshot p {
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .lead {
+    margin-top: 1rem;
+  }
+
+  .topbar {
+    width: min(1120px, 100%);
+    margin: 0 auto 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .form {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  label {
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  input {
+    width: 100%;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 0.95rem 1rem;
+    font: inherit;
+  }
+
+  input:focus {
+    outline: 2px solid rgba(220, 193, 123, 0.3);
+    border-color: var(--gold);
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  button {
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: #120f09;
+    padding: 0.95rem 1.1rem;
+    font: inherit;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  button.secondary {
+    background: transparent;
+    color: #fff;
+    border-color: var(--border);
+  }
+
+  .status {
+    min-height: 1.2rem;
+    line-height: 1.6;
+    color: var(--success);
+  }
+
+  .status.error {
+    color: var(--error);
+  }
+
+  .snapshot {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .snapshot-box {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    padding: 1rem;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .tag {
+    border: 1px solid var(--border);
+    padding: 0.45rem 0.65rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    body { padding: 1.2rem; }
+    .topbar, .shell { grid-template-columns: 1fr; display: grid; }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/">Back to public site</a>
+    <a href="/barber">Barber login</a>
+  </div>
+
+  <div class="shell">
+    <section class="card">
+      <div class="eyebrow">Barber onboarding</div>
+      <h1 id="inviteTitle">Create your barber account</h1>
+      <p class="lead">This invite link is sent by the admin when a new barber profile is created. Use the private access code to activate your account and choose the credentials you will use later in the barber login area.</p>
+    </section>
+
+    <section class="card">
+      <div class="eyebrow">Account setup</div>
+      <h2>Finish your private access</h2>
+      <p class="copy">Once your account is created, you will use your email and password in the regular barber login page.</p>
+      <div class="status" id="inviteStatus" aria-live="polite"></div>
+
+      <form class="form" id="inviteForm" novalidate>
+        <div class="field">
+          <label for="inviteAccessCode">Invite Access Code</label>
+          <input id="inviteAccessCode" type="password" placeholder="Enter the code sent by the admin" autocomplete="one-time-code">
+        </div>
+        <div class="field">
+          <label for="inviteEmail">Email</label>
+          <input id="inviteEmail" type="email" placeholder="name@example.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label for="invitePassword">Password</label>
+          <input id="invitePassword" type="password" placeholder="Minimum 8 characters" autocomplete="new-password">
+        </div>
+        <div class="field">
+          <label for="invitePasswordConfirm">Confirm Password</label>
+          <input id="invitePasswordConfirm" type="password" placeholder="Repeat your password" autocomplete="new-password">
+        </div>
+        <div class="actions">
+          <button type="submit">Create Account</button>
+          <a class="secondary" style="display:inline-flex;align-items:center;justify-content:center;padding:0.95rem 1.1rem;border:1px solid var(--border);" href="/barber">Go to barber login</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="card" style="grid-column: 1 / -1;">
+      <div class="eyebrow">Invite details</div>
+      <h2>Your profile invitation</h2>
+      <div class="snapshot" id="inviteSnapshot">
+        <div class="snapshot-box">
+          <strong>No invite loaded yet</strong>
+          <p>Open the invite URL sent by the admin to see the assigned barber profile and complete account setup.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+<script>
+const inviteForm = document.getElementById('inviteForm');
+const inviteAccessCodeField = document.getElementById('inviteAccessCode');
+const inviteEmailField = document.getElementById('inviteEmail');
+const invitePasswordField = document.getElementById('invitePassword');
+const invitePasswordConfirmField = document.getElementById('invitePasswordConfirm');
+const inviteStatus = document.getElementById('inviteStatus');
+const inviteSnapshot = document.getElementById('inviteSnapshot');
+const inviteTitle = document.getElementById('inviteTitle');
+
+const pathParts = window.location.pathname.split('/').filter(Boolean);
+const barberId = pathParts[0] === 'barber' && pathParts[1] === 'onboard' ? pathParts[2] : new URLSearchParams(window.location.search).get('barber');
+
+function setStatus(message, isError = false) {
+  inviteStatus.textContent = message;
+  inviteStatus.classList.toggle('error', isError);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
+}
+
+function renderInvite(barber) {
+  inviteTitle.textContent = `Create ${barber.name}'s account`;
+  inviteSnapshot.innerHTML = `
+    <div class="snapshot-box">
+      <strong>${escapeHtml(barber.name)}</strong>
+      <p style="margin-top:0.55rem;">${escapeHtml(barber.role)}${barber.experience ? ` · ${escapeHtml(barber.experience)}` : ''}</p>
+      <div class="tag-row">
+        <span class="tag">${barber.hasAccount ? 'Account already created' : 'Invite pending'}</span>
+        <span class="tag">Login later at /barber</span>
+      </div>
+    </div>
+  `;
+}
+
+async function loadInvite() {
+  if (!barberId) {
+    setStatus('This invite URL is missing a barber identifier. Ask the admin to send the full invite link.', true);
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/barber/${barberId}/invite`);
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || 'Unable to load invite details.');
+    }
+
+    renderInvite(result.barber);
+    if (result.barber.hasAccount) {
+      setStatus('This barber account is already active. You can go straight to the barber login page.');
+    } else {
+      setStatus('Invite loaded. Use the access code from the admin to finish your account setup.');
+    }
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
+inviteForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  if (!barberId) {
+    setStatus('This invite URL is missing a barber identifier.', true);
+    return;
+  }
+
+  if (!inviteAccessCodeField.value.trim()) {
+    setStatus('Enter the invite access code first.', true);
+    return;
+  }
+
+  if (!validateEmail(inviteEmailField.value)) {
+    setStatus('Please enter a valid email address.', true);
+    return;
+  }
+
+  if (invitePasswordField.value.length < 8) {
+    setStatus('Password must be at least 8 characters long.', true);
+    return;
+  }
+
+  if (invitePasswordField.value !== invitePasswordConfirmField.value) {
+    setStatus('Password confirmation does not match.', true);
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/barber/${barberId}/account-setup`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        accessCode: inviteAccessCodeField.value.trim(),
+        email: inviteEmailField.value.trim(),
+        password: invitePasswordField.value
+      })
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || 'Unable to create the barber account.');
+    }
+
+    sessionStorage.setItem(`sharpcut-barber-session:${result.barber.id}`, JSON.stringify({
+      id: result.barber.id,
+      token: result.session.token
+    }));
+    setStatus('Account created successfully. Redirecting you to the barber area.');
+    window.setTimeout(() => {
+      window.location.href = result.redirectPath || '/barber';
+    }, 900);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+});
+
+loadInvite();
+</script>
+</body>
+</html>

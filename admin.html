@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Sharp Cut Admin</title>
+<style>
+  :root {
+    --bg: #070503;
+    --panel: rgba(18, 14, 9, 0.94);
+    --panel-soft: rgba(255, 255, 255, 0.03);
+    --panel-muted: rgba(255, 255, 255, 0.02);
+    --line: rgba(186, 149, 63, 0.16);
+    --line-strong: rgba(186, 149, 63, 0.3);
+    --text: #f7f0e1;
+    --muted: rgba(240, 230, 201, 0.7);
+    --gold: #ba953f;
+    --gold-soft: #dbc98e;
+    --danger: #ff9c90;
+    --success: #b8e0b2;
+    --info: #8ca8ff;
+    --shadow: 0 28px 70px rgba(0, 0, 0, 0.38);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    color: var(--text);
+    background:
+      radial-gradient(circle at top left, rgba(186, 149, 63, 0.18), transparent 24%),
+      radial-gradient(circle at bottom right, rgba(110, 80, 22, 0.16), transparent 28%),
+      linear-gradient(180deg, #050402, #0c0805 40%, #080603);
+  }
+
+  a { color: inherit; text-decoration: none; }
+  button, input, textarea, select { font: inherit; }
+
+  .admin-shell {
+    width: min(1540px, calc(100% - 2rem));
+    margin: 1rem auto;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    min-height: calc(100vh - 2rem);
+    background: rgba(9, 7, 4, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .sidebar {
+    padding: 1.5rem 1.1rem;
+    border-right: 1px solid var(--line);
+    background:
+      linear-gradient(180deg, rgba(186, 149, 63, 0.08), transparent 20%),
+      rgba(11, 8, 5, 0.95);
+  }
+
+  .brand {
+    display: grid;
+    gap: 0.65rem;
+    padding: 0.6rem 0.5rem 1.6rem;
+  }
+
+  .brand-mark {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    border: 1px solid var(--line-strong);
+    display: grid;
+    place-items: center;
+    color: var(--gold-soft);
+    letter-spacing: 2px;
+    font-weight: bold;
+    background: linear-gradient(180deg, rgba(186,149,63,0.24), rgba(186,149,63,0.06));
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--gold);
+    font-size: 0.7rem;
+  }
+
+  .brand h1 {
+    font-family: Georgia, serif;
+    font-size: 1.7rem;
+    font-weight: normal;
+    line-height: 1;
+  }
+
+  .brand p,
+  .subcopy,
+  .table-subcopy,
+  .panel-note,
+  .status-copy,
+  .empty-copy,
+  .helper-copy {
+    color: var(--muted);
+    line-height: 1.65;
+  }
+
+  .sidebar-nav {
+    display: grid;
+    gap: 0.55rem;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.95rem 1rem;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--text);
+    transition: 0.2s ease;
+  }
+
+  .sidebar-link:hover,
+  .sidebar-link:focus-visible {
+    background: rgba(186, 149, 63, 0.08);
+    border-color: var(--line-strong);
+    outline: none;
+  }
+
+  .sidebar-link small {
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .sidebar-foot {
+    margin-top: 1.4rem;
+    border-top: 1px solid var(--line);
+    padding: 1rem 0.5rem 0;
+  }
+
+  .main {
+    padding: 1.5rem;
+    overflow: auto;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .topbar h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: normal;
+    line-height: 1;
+    margin-bottom: 0.45rem;
+  }
+
+  .topbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .btn,
+  button {
+    border: 1px solid var(--gold);
+    background: var(--gold);
+    color: #181208;
+    padding: 0.92rem 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    transition: 0.2s ease;
+  }
+
+  .btn:hover,
+  button:hover,
+  .btn:focus-visible,
+  button:focus-visible {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  .btn.secondary,
+  button.secondary {
+    background: transparent;
+    border-color: var(--line-strong);
+    color: var(--text);
+  }
+
+  .auth-strip {
+    display: grid;
+    grid-template-columns: minmax(240px, 320px) auto auto 1fr;
+    gap: 0.8rem;
+    align-items: end;
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 20px;
+  }
+
+  .field,
+  .field-group {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    background: var(--panel-soft);
+    color: var(--text);
+    border: 1px solid var(--line);
+    padding: 0.92rem 1rem;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(186, 149, 63, 0.12);
+  }
+
+  select {
+    appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--gold-soft) 50%),
+      linear-gradient(135deg, var(--gold-soft) 50%, transparent 50%);
+    background-position:
+      calc(100% - 22px) calc(50% - 3px),
+      calc(100% - 14px) calc(50% - 3px);
+    background-size: 8px 8px, 8px 8px;
+    background-repeat: no-repeat;
+    padding-right: 3rem;
+  }
+
+  textarea { min-height: 110px; resize: vertical; }
+
+  .section {
+    margin-top: 1.2rem;
+    scroll-margin-top: 1rem;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .section-head h3 {
+    font-family: Georgia, serif;
+    font-size: 1.9rem;
+    font-weight: normal;
+  }
+
+  .grid {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .grid.overview {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .grid.two {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
+  }
+
+  .grid.split {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+
+  .panel,
+  .metric-card,
+  .surface-card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 22px;
+  }
+
+  .panel,
+  .surface-card {
+    padding: 1.2rem;
+  }
+
+  .metric-card {
+    padding: 1rem 1.1rem;
+    min-height: 125px;
+  }
+
+  .metric-label {
+    display: block;
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .metric-value {
+    display: block;
+    margin: 0.65rem 0 0.35rem;
+    font-family: Georgia, serif;
+    font-size: clamp(1.9rem, 2.8vw, 2.7rem);
+    line-height: 1;
+  }
+
+  .status {
+    min-height: 1.2rem;
+    line-height: 1.6;
+    color: var(--success);
+  }
+
+  .status.error { color: var(--danger); }
+
+  .status-badge,
+  .tiny-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid var(--line);
+    padding: 0.35rem 0.58rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .status-badge.active,
+  .tiny-badge.success {
+    color: var(--success);
+    border-color: rgba(184, 224, 178, 0.28);
+  }
+
+  .status-badge.deleted,
+  .tiny-badge.danger {
+    color: var(--danger);
+    border-color: rgba(255, 156, 144, 0.3);
+  }
+
+  .tiny-badge.info {
+    color: var(--info);
+    border-color: rgba(140, 168, 255, 0.28);
+  }
+
+  .pending-actions {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.8rem;
+  }
+
+  .action-item,
+  .feed-card {
+    border: 1px solid var(--line);
+    background: var(--panel-muted);
+    border-radius: 18px;
+    padding: 0.95rem 1rem;
+  }
+
+  .action-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .feed-card p,
+  .action-item p,
+  .table-subcopy,
+  .helper-copy {
+    font-size: 0.9rem;
+  }
+
+  .toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 220px auto;
+    gap: 0.8rem;
+    align-items: end;
+    margin-bottom: 1rem;
+  }
+
+  .form-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
+
+  .group-card {
+    border: 1px solid var(--line);
+    background: var(--panel-muted);
+    border-radius: 18px;
+    padding: 1rem;
+  }
+
+  .group-card h4 {
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .field-row,
+  .stats-row,
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .chip-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .chip-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.03);
+    border-radius: 999px;
+    padding: 0.72rem 0.95rem;
+    color: var(--text);
+    font-size: 0.88rem;
+  }
+
+  .chip-option input {
+    width: auto;
+    accent-color: var(--gold);
+  }
+
+  .private-access {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .access-preview {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.025);
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.02);
+  }
+
+  table {
+    width: 100%;
+    min-width: 860px;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 0.95rem 0.85rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(186,149,63,0.1);
+  }
+
+  th {
+    color: var(--muted);
+    background: rgba(255,255,255,0.02);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  td {
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .row-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .row-actions button {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.78rem;
+  }
+
+  .empty-state {
+    color: var(--muted);
+    padding: 1.3rem 1rem;
+  }
+
+  .settings-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  details.help-card {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--panel);
+    padding: 1rem 1.1rem;
+  }
+
+  details.help-card summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  details.help-card p {
+    margin-top: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  @media (max-width: 1260px) {
+    .admin-shell { grid-template-columns: 1fr; }
+    .sidebar {
+      border-right: none;
+      border-bottom: 1px solid var(--line);
+    }
+    .sidebar-nav {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .grid.overview,
+    .grid.two,
+    .grid.split,
+    .settings-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .main,
+    .sidebar { padding: 1rem; }
+    .topbar,
+    .section-head { flex-direction: column; align-items: flex-start; }
+    .topbar-actions,
+    .actions { width: 100%; }
+    .topbar-actions > *,
+    .actions > * { flex: 1 1 100%; }
+    .auth-strip,
+    .toolbar,
+    .field-row,
+    .stats-row,
+    .settings-grid { grid-template-columns: 1fr; }
+    .sidebar-nav { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">TSC</div>
+        <div class="eyebrow">Admin</div>
+        <h1>The Sharp Cut</h1>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Admin sections">
+        <a class="sidebar-link" href="#overview"><span>Overview</span><small>01</small></a>
+        <a class="sidebar-link" href="#barbers"><span>Barbers</span><small>02</small></a>
+        <a class="sidebar-link" href="#bookings"><span>Bookings</span><small>03</small></a>
+        <a class="sidebar-link" href="#notifications"><span>Notifications</span><small>04</small></a>
+        <a class="sidebar-link" href="#settings"><span>Settings</span><small>05</small></a>
+      </nav>
+
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="eyebrow">Backoffice</div>
+          <h2>Admin Dashboard</h2>
+          <p class="subcopy">Manage barbers, bookings, and notifications.</p>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" id="openAddBarberBtn">+ Add Barber</button>
+          <button type="button" class="secondary" id="refreshAdminBtn">Refresh</button>
+          <button type="button" class="secondary" id="logoutAdminBtn">Logout</button>
+          <a class="btn secondary" href="/">Back to public site</a>
+        </div>
+      </div>
+
+      <section class="section" id="overview">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Overview</div>
+            <h3>What needs attention now</h3>
+          </div>
+        </div>
+
+        <div class="grid overview">
+          <article class="metric-card">
+            <span class="metric-label">Total Barbers</span>
+            <strong class="metric-value" id="overviewTotal">0</strong>
+            <p class="helper-copy">All barber profiles.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Active Barbers</span>
+            <strong class="metric-value" id="overviewActive">0</strong>
+            <p class="helper-copy">Bookable right now.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Pending Bookings</span>
+            <strong class="metric-value" id="overviewPending">0</strong>
+            <p class="helper-copy">Need a barber response.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Verification Pending</span>
+            <strong class="metric-value" id="overviewUnverified">0</strong>
+            <p class="helper-copy">Phone checks still open.</p>
+          </article>
+        </div>
+
+        <div class="grid split" style="margin-top:1rem;">
+          <article class="panel">
+            <div class="section-head" style="margin-bottom:0.65rem;">
+              <div>
+                <div class="eyebrow">Pending Actions</div>
+                <h3 style="font-size:1.45rem;">Action queue</h3>
+              </div>
+            </div>
+            <div class="pending-actions" id="pendingActionsList">
+              <div class="action-item">
+                <div>
+                  <strong>No urgent actions</strong>
+                  <p class="status-copy">Load dashboard data to see current priorities.</p>
+                </div>
+                <span class="tiny-badge info">Idle</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="section-head" style="margin-bottom:0.65rem;">
+              <div>
+                <div class="eyebrow">Team Status</div>
+                <h3 style="font-size:1.45rem;">Roster snapshot</h3>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Phone</th>
+                    <th>Availability</th>
+                  </tr>
+                </thead>
+                <tbody id="teamStatusList">
+                  <tr><td colspan="4" class="empty-state">No barbers loaded yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <article class="panel" style="margin-top:1rem;">
+          <div class="section-head" style="margin-bottom:0.7rem;">
+            <div>
+              <div class="eyebrow">Recent Bookings</div>
+              <h3 style="font-size:1.45rem;">Latest requests</h3>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Service</th>
+                  <th>Barber</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="overviewRecentBookings">
+                <tr><td colspan="5" class="empty-state">No recent bookings yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section" id="barbers">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Barbers</div>
+            <h3>Barbers</h3>
+          </div>
+        </div>
+
+        <div class="auth-strip">
+          <div class="field">
+            <label for="adminToken">Admin Token</label>
+            <input id="adminToken" name="adminToken" type="password" placeholder="Enter admin token" autocomplete="current-password">
+          </div>
+          <button type="button" id="loadBarbersBtn">Load Data</button>
+          <button type="button" class="secondary" id="resetAdminBtn">Reset Form</button>
+          <div class="status" id="adminStatus" aria-live="polite"></div>
+        </div>
+
+        <div class="grid two">
+          <article class="panel">
+            <div class="toolbar">
+              <div class="field">
+                <label for="barberSearch">Search</label>
+                <input id="barberSearch" type="search" placeholder="Search name, role, service or phone">
+              </div>
+              <div class="field">
+                <label for="barberStatusFilter">Status</label>
+                <select id="barberStatusFilter">
+                  <option value="all">All</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="deleted">Deleted</option>
+                  <option value="pending-verification">Pending verification</option>
+                </select>
+              </div>
+              <button type="button" id="barberFilterAddBtn">+ Add Barber</button>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Phone</th>
+                    <th>Verification</th>
+                    <th>Availability</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminBarberList">
+                  <tr><td colspan="7" class="empty-state">No barbers yet. Create your first barber to start receiving bookings.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          <article class="panel" id="barberEditorPanel">
+            <div class="section-head" style="margin-bottom:0.8rem;">
+              <div>
+                <div class="eyebrow">Editor</div>
+                <h3 style="font-size:1.45rem;">Barber profile form</h3>
+              </div>
+            </div>
+
+            <form class="form-layout" id="adminForm" novalidate>
+              <input id="adminMode" type="hidden" value="create">
+
+              <div class="group-card">
+                <h4>Basic Info</h4>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="adminName">Barber Name</label>
+                    <input id="adminName" name="name" type="text" placeholder="Bruno Martins">
+                  </div>
+                  <div class="field">
+                    <label for="adminRole">Role</label>
+                    <input id="adminRole" name="role" type="text" placeholder="Senior Barber">
+                  </div>
+                  <div class="field">
+                    <label for="adminExperience">Experience</label>
+                    <input id="adminExperience" name="experience" type="text" placeholder="4 Years">
+                  </div>
+                  <div class="field">
+                    <label for="adminPhoneNumber">Mobile Number</label>
+                    <input id="adminPhoneNumber" name="phoneNumber" type="tel" placeholder="+351912345678">
+                  </div>
+                </div>
+                <div class="field" style="margin-top:0.9rem;">
+                  <label for="adminBio">Short Bio</label>
+                  <textarea id="adminBio" name="bio" placeholder="Specialist in fades, beard detailing, and premium consultation."></textarea>
+                </div>
+              </div>
+
+              <div class="group-card">
+                <h4>Services</h4>
+                <div class="chip-grid">
+                  <label class="chip-option"><input type="checkbox" name="supportedServices" value="Classic Haircut — €22">Classic Haircut</label>
+                  <label class="chip-option"><input type="checkbox" name="supportedServices" value="Cut and Beard — €35">Cut and Beard</label>
+                  <label class="chip-option"><input type="checkbox" name="supportedServices" value="Hot Towel Shave — €28">Hot Towel Shave</label>
+                  <label class="chip-option"><input type="checkbox" name="supportedServices" value="Beard Sculpting — €18">Beard Sculpting</label>
+                  <label class="chip-option"><input type="checkbox" name="supportedServices" value="Kids Haircut — €15">Kids Haircut</label>
+                  <label class="chip-option"><input type="checkbox" name="supportedServices" value="VIP Experience — €65">VIP Experience</label>
+                </div>
+              </div>
+
+              <div class="group-card">
+                <h4>Availability</h4>
+                <div class="chip-grid" style="margin-bottom:0.9rem;">
+                  <label class="chip-option"><input type="checkbox" name="workDays" value="1">Mon</label>
+                  <label class="chip-option"><input type="checkbox" name="workDays" value="2">Tue</label>
+                  <label class="chip-option"><input type="checkbox" name="workDays" value="3">Wed</label>
+                  <label class="chip-option"><input type="checkbox" name="workDays" value="4">Thu</label>
+                  <label class="chip-option"><input type="checkbox" name="workDays" value="5">Fri</label>
+                  <label class="chip-option"><input type="checkbox" name="workDays" value="6">Sat</label>
+                  <label class="chip-option"><input type="checkbox" name="workDays" value="0">Sun</label>
+                </div>
+                <div class="field-row">
+                  <div class="field">
+                    <label for="adminBlockedTimes">Blocked Times</label>
+                    <input id="adminBlockedTimes" name="blockedTimes" type="text" placeholder="11:00, 14:30">
+                  </div>
+                  <div class="field">
+                    <label for="adminBlockedDates">Blocked Dates</label>
+                    <input id="adminBlockedDates" name="blockedDates" type="text" placeholder="2026-05-01, 2026-05-08">
+                  </div>
+                </div>
+              </div>
+
+              <div class="group-card">
+                <h4>Private Access</h4>
+                <div class="private-access">
+                  <div class="field">
+                    <label for="adminAccessCode">Access Code</label>
+                    <input id="adminAccessCode" name="accessCode" type="text" placeholder="Leave blank to auto-generate">
+                  </div>
+                  <div class="access-preview">
+                    <strong style="display:block;margin-bottom:0.35rem;">Invite URL</strong>
+                    <p class="status-copy" id="adminInvitePreview">Create or edit a barber to refresh the private invite link.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button type="submit" id="submitAdminBtn">Save Barber</button>
+                <button type="button" class="secondary" id="cancelEditBtn" hidden>Cancel Edit</button>
+              </div>
+            </form>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="bookings">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Bookings</div>
+            <h3>Bookings</h3>
+          </div>
+        </div>
+
+        <div class="grid overview" style="margin-bottom:1rem;">
+          <article class="metric-card">
+            <span class="metric-label">Pending</span>
+            <strong class="metric-value" id="bookingsPendingCard">0</strong>
+            <p class="helper-copy">Need a decision.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Confirmed</span>
+            <strong class="metric-value" id="bookingsConfirmedCard">0</strong>
+            <p class="helper-copy">Already accepted.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Rejected</span>
+            <strong class="metric-value" id="bookingsRejectedCard">0</strong>
+            <p class="helper-copy">Declined requests.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Cancelled</span>
+            <strong class="metric-value" id="bookingsCancelledCard">0</strong>
+            <p class="helper-copy">Reserved for future flow.</p>
+          </article>
+        </div>
+
+        <article class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Service</th>
+                  <th>Barber</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="adminReservationFeed">
+                <tr><td colspan="5" class="empty-state">No bookings found.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section" id="notifications">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Notifications</div>
+            <h3>Notifications</h3>
+          </div>
+        </div>
+
+        <div class="grid overview" style="margin-bottom:1rem;">
+          <article class="metric-card">
+            <span class="metric-label">Awaiting Verification</span>
+            <strong class="metric-value" id="overviewVerified">0</strong>
+            <p class="helper-copy">Need phone approval.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Alerts Sent Today</span>
+            <strong class="metric-value" id="notificationsTodayCard">0</strong>
+            <p class="helper-copy">Created in the last day.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Failed Notifications</span>
+            <strong class="metric-value" id="notificationsFailedCard">0</strong>
+            <p class="helper-copy">Need follow-up.</p>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Deleted Profiles</span>
+            <strong class="metric-value" id="overviewDeleted">0</strong>
+            <p class="helper-copy">Archived and recoverable.</p>
+          </article>
+        </div>
+
+        <article class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Barber</th>
+                  <th>Booking</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="adminNotificationFeed">
+                <tr><td colspan="5" class="empty-state">No notifications yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="section" id="settings">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Settings</div>
+            <h3>Settings</h3>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <article class="surface-card">
+            <div class="eyebrow">Access</div>
+            <p class="status-copy"><strong style="color:#fff;">Admin</strong><br>/admin</p>
+            <p class="status-copy" style="margin-top:0.8rem;"><strong style="color:#fff;">Barber invite</strong><br>/barber/onboard/:id</p>
+            <p class="status-copy" style="margin-top:0.8rem;"><strong style="color:#fff;">Barber login</strong><br>/barber</p>
+          </article>
+          <article class="surface-card">
+            <div class="eyebrow">Environment</div>
+            <p class="status-copy" id="protocolHint">Open `/admin` through localhost to use live API data. `file://` preview is visual only.</p>
+          </article>
+        </div>
+
+        <details class="help-card" style="margin-top:1rem;">
+          <summary>System notes</summary>
+          <p>Use the admin token to unlock CRUD, bookings, and notifications. Invite URLs are generated on barber creation and route the barber into the onboarding flow.</p>
+        </details>
+      </section>
+    </main>
+  </div>
+
+<script>
+const adminForm = document.getElementById('adminForm');
+const adminTokenField = document.getElementById('adminToken');
+const adminNameField = document.getElementById('adminName');
+const adminRoleField = document.getElementById('adminRole');
+const adminExperienceField = document.getElementById('adminExperience');
+const adminAccessCodeField = document.getElementById('adminAccessCode');
+const adminPhoneNumberField = document.getElementById('adminPhoneNumber');
+const adminBlockedTimesField = document.getElementById('adminBlockedTimes');
+const adminBlockedDatesField = document.getElementById('adminBlockedDates');
+const adminBioField = document.getElementById('adminBio');
+const adminModeField = document.getElementById('adminMode');
+const adminStatus = document.getElementById('adminStatus');
+const adminBarberList = document.getElementById('adminBarberList');
+const loadBarbersBtn = document.getElementById('loadBarbersBtn');
+const resetAdminBtn = document.getElementById('resetAdminBtn');
+const submitAdminBtn = document.getElementById('submitAdminBtn');
+const cancelEditBtn = document.getElementById('cancelEditBtn');
+const refreshAdminBtn = document.getElementById('refreshAdminBtn');
+const logoutAdminBtn = document.getElementById('logoutAdminBtn');
+const openAddBarberBtn = document.getElementById('openAddBarberBtn');
+const barberFilterAddBtn = document.getElementById('barberFilterAddBtn');
+const barberSearchField = document.getElementById('barberSearch');
+const barberStatusFilter = document.getElementById('barberStatusFilter');
+const overviewTotal = document.getElementById('overviewTotal');
+const overviewActive = document.getElementById('overviewActive');
+const overviewVerified = document.getElementById('overviewVerified');
+const overviewPending = document.getElementById('overviewPending');
+const overviewDeleted = document.getElementById('overviewDeleted');
+const overviewUnverified = document.getElementById('overviewUnverified');
+const overviewRecentBookings = document.getElementById('overviewRecentBookings');
+const overviewConfirmed = document.getElementById('bookingsConfirmedCard');
+const overviewRejected = document.getElementById('bookingsRejectedCard');
+const bookingsPendingCard = document.getElementById('bookingsPendingCard');
+const bookingsCancelledCard = document.getElementById('bookingsCancelledCard');
+const notificationsTodayCard = document.getElementById('notificationsTodayCard');
+const notificationsFailedCard = document.getElementById('notificationsFailedCard');
+const pendingActionsList = document.getElementById('pendingActionsList');
+const adminReservationFeed = document.getElementById('adminReservationFeed');
+const adminNotificationFeed = document.getElementById('adminNotificationFeed');
+const teamStatusList = document.getElementById('teamStatusList');
+const protocolHint = document.getElementById('protocolHint');
+const adminInvitePreview = document.getElementById('adminInvitePreview');
+const ADMIN_SESSION_KEY = 'sharpcut-admin-token';
+let editingBarberId = null;
+let cachedBarbers = [];
+let cachedReservations = [];
+let cachedNotifications = [];
+let cachedDashboardMetrics = {
+  pendingReservations: 0,
+  confirmedReservations: 0,
+  rejectedReservations: 0
+};
+
+function getAdminHeaders() {
+  const token = adminTokenField.value.trim();
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
+function setAdminStatus(message, isError = false) {
+  adminStatus.textContent = message;
+  adminStatus.classList.toggle('error', isError);
+}
+
+function saveAdminSession() {
+  const token = adminTokenField.value.trim();
+  if (!token) return;
+  sessionStorage.setItem(ADMIN_SESSION_KEY, token);
+}
+
+function clearAdminSession() {
+  sessionStorage.removeItem(ADMIN_SESSION_KEY);
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function parseBlockedSlots() {
+  const blockedTimes = adminBlockedTimesField.value
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .map((time) => ({ time }));
+  const blockedDates = adminBlockedDatesField.value
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .map((date) => ({ date }));
+
+  return [...blockedTimes, ...blockedDates];
+}
+
+function validateBlockedSlots(blockedSlots) {
+  const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
+  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+  for (const slot of blockedSlots) {
+    if (slot.time && !timePattern.test(slot.time)) {
+      return `Invalid blocked time: ${slot.time}`;
+    }
+    if (slot.date && !datePattern.test(slot.date)) {
+      return `Invalid blocked date: ${slot.date}`;
+    }
+  }
+
+  return null;
+}
+
+function validatePhoneNumber(phoneNumber) {
+  if (!phoneNumber.trim()) return true;
+  return /^\+?[0-9]{9,15}$/.test(phoneNumber.replace(/\s+/g, ''));
+}
+
+function buildBarberPayload() {
+  const blockedSlots = parseBlockedSlots();
+
+  return {
+    name: adminNameField.value.trim(),
+    role: adminRoleField.value.trim(),
+    experience: adminExperienceField.value.trim(),
+    accessCode: adminAccessCodeField.value.trim(),
+    phoneNumber: adminPhoneNumberField.value.trim(),
+    bio: adminBioField.value.trim(),
+    supportedServices: [...adminForm.querySelectorAll('input[name="supportedServices"]:checked')].map((input) => input.value),
+    availability: {
+      workDays: [...adminForm.querySelectorAll('input[name="workDays"]:checked')].map((input) => Number(input.value)),
+      blockedSlots
+    }
+  };
+}
+
+function getOnboardingUrl(barber) {
+  return barber.onboardingUrl || `${window.location.origin}/barber/onboard/${barber.id}`;
+}
+
+function updateInvitePreview(barber = null) {
+  if (!barber) {
+    adminInvitePreview.textContent = 'Create or edit a barber to refresh the private invite link.';
+    return;
+  }
+
+  adminInvitePreview.textContent = `${getOnboardingUrl(barber)} · ${barber.hasAccount ? 'Account active' : 'Invite pending'}`;
+}
+
+function updateOverview(barbers = []) {
+  const total = barbers.length;
+  const active = barbers.filter((barber) => barber.status === 'active').length;
+  const deleted = barbers.filter((barber) => barber.status === 'deleted').length;
+  const verified = barbers.filter((barber) => barber.phoneVerified).length;
+  const unverified = barbers.filter((barber) => barber.maskedPhoneNumber && !barber.phoneVerified).length;
+  const alertsToday = cachedNotifications.filter((notification) => {
+    if (!notification.createdAt) return false;
+    return new Date(notification.createdAt).getTime() >= Date.now() - (24 * 60 * 60 * 1000);
+  }).length;
+  const failedNotifications = cachedNotifications.filter((notification) => notification.status === 'failed').length;
+
+  overviewTotal.textContent = String(total);
+  overviewActive.textContent = String(active);
+  overviewVerified.textContent = String(unverified);
+  overviewPending.textContent = String(cachedDashboardMetrics.pendingReservations || 0);
+  overviewDeleted.textContent = String(deleted);
+  overviewUnverified.textContent = String(unverified);
+  bookingsPendingCard.textContent = String(cachedDashboardMetrics.pendingReservations || 0);
+  overviewConfirmed.textContent = String(cachedDashboardMetrics.confirmedReservations || 0);
+  overviewRejected.textContent = String(cachedDashboardMetrics.rejectedReservations || 0);
+  bookingsCancelledCard.textContent = '0';
+  notificationsTodayCard.textContent = String(alertsToday);
+  notificationsFailedCard.textContent = String(failedNotifications);
+}
+
+function renderPendingActions() {
+  const actionItems = [];
+  const unverifiedCount = cachedBarbers.filter((barber) => barber.maskedPhoneNumber && !barber.phoneVerified).length;
+  const invitePendingCount = cachedBarbers.filter((barber) => !barber.hasAccount && barber.status === 'active').length;
+
+  if (cachedDashboardMetrics.pendingReservations > 0) {
+    actionItems.push({
+      title: `${cachedDashboardMetrics.pendingReservations} pending booking${cachedDashboardMetrics.pendingReservations > 1 ? 's' : ''}`,
+      text: 'Open the bookings section and review the latest requests.',
+      badge: 'Pending',
+      badgeClass: 'info'
+    });
+  }
+
+  if (unverifiedCount > 0) {
+    actionItems.push({
+      title: `${unverifiedCount} barber${unverifiedCount > 1 ? 's' : ''} awaiting phone verification`,
+      text: 'Follow up so notification delivery can become active.',
+      badge: 'Verify',
+      badgeClass: 'danger'
+    });
+  }
+
+  if (invitePendingCount > 0) {
+    actionItems.push({
+      title: `${invitePendingCount} invite${invitePendingCount > 1 ? 's' : ''} still pending`,
+      text: 'Share onboarding links or remind the barber to finish account setup.',
+      badge: 'Invite',
+      badgeClass: 'info'
+    });
+  }
+
+  if (!actionItems.length) {
+    pendingActionsList.innerHTML = `
+      <div class="action-item">
+        <div>
+          <strong>Everything looks under control</strong>
+          <p class="status-copy">No urgent actions right now.</p>
+        </div>
+        <span class="tiny-badge success">Clear</span>
+      </div>
+    `;
+    return;
+  }
+
+  pendingActionsList.innerHTML = actionItems.map((item) => `
+    <div class="action-item">
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <p class="status-copy">${escapeHtml(item.text)}</p>
+      </div>
+      <span class="tiny-badge ${item.badgeClass}">${escapeHtml(item.badge)}</span>
+    </div>
+  `).join('');
+}
+
+function renderOverviewBookings(reservations) {
+  if (!reservations.length) {
+    overviewRecentBookings.innerHTML = `<tr><td colspan="5" class="empty-state">No recent bookings yet.</td></tr>`;
+    return;
+  }
+
+  overviewRecentBookings.innerHTML = reservations.slice(0, 5).map((reservation) => `
+    <tr>
+      <td>${escapeHtml(reservation.customer.firstName)} ${escapeHtml(reservation.customer.lastName)}</td>
+      <td>${escapeHtml(reservation.service)}</td>
+      <td>${escapeHtml(reservation.barberName || 'First available')}</td>
+      <td>${escapeHtml(reservation.date)} ${escapeHtml(reservation.time)}</td>
+      <td><span class="status-badge ${reservation.status === 'pending' ? 'active' : reservation.status === 'confirmed' ? 'active' : 'deleted'}">${escapeHtml(reservation.status)}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderAdminReservations(reservations) {
+  if (!reservations.length) {
+    adminReservationFeed.innerHTML = `<tr><td colspan="5" class="empty-state">No bookings found.</td></tr>`;
+    return;
+  }
+
+  adminReservationFeed.innerHTML = reservations.map((reservation) => `
+    <tr>
+      <td>
+        <strong>${escapeHtml(reservation.customer.firstName)} ${escapeHtml(reservation.customer.lastName)}</strong>
+        <div class="status-copy">${escapeHtml(reservation.customer.email)}</div>
+      </td>
+      <td>${escapeHtml(reservation.service)}</td>
+      <td>${escapeHtml(reservation.barberName || 'First available')}</td>
+      <td>${escapeHtml(reservation.date)}<br><span class="status-copy">${escapeHtml(reservation.time)}</span></td>
+      <td><span class="status-badge ${reservation.status === 'pending' ? 'active' : reservation.status === 'confirmed' ? 'active' : 'deleted'}">${escapeHtml(reservation.status)}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderAdminNotifications(notifications) {
+  if (!notifications.length) {
+    adminNotificationFeed.innerHTML = `<tr><td colspan="5" class="empty-state">No notifications yet.</td></tr>`;
+    return;
+  }
+
+  adminNotificationFeed.innerHTML = notifications.map((notification) => `
+    <tr>
+      <td>${escapeHtml(notification.type.replaceAll('_', ' '))}</td>
+      <td>${escapeHtml(notification.metadata?.customerName || notification.barberId || 'System')}</td>
+      <td>${escapeHtml(notification.metadata?.reservationId || '—')}</td>
+      <td><span class="status-badge ${notification.status === 'failed' ? 'deleted' : 'active'}">${escapeHtml(notification.status)}</span></td>
+      <td>${escapeHtml(notification.createdAt || '—')}</td>
+    </tr>
+  `).join('');
+}
+
+function renderTeamStatus(barbers) {
+  if (!barbers.length) {
+    teamStatusList.innerHTML = `<tr><td colspan="4" class="empty-state">No barbers loaded yet.</td></tr>`;
+    return;
+  }
+
+  teamStatusList.innerHTML = barbers.slice(0, 6).map((barber) => `
+    <tr>
+      <td>
+        <strong>${escapeHtml(barber.name)}</strong>
+        <div class="status-copy">${escapeHtml(barber.role)}</div>
+      </td>
+      <td><span class="status-badge ${barber.status === 'active' ? 'active' : 'deleted'}">${escapeHtml(barber.status)}</span></td>
+      <td>${barber.phoneVerified ? '<span class="tiny-badge success">Verified</span>' : '<span class="tiny-badge danger">Pending</span>'}</td>
+      <td>${escapeHtml((barber.availability?.workDays || []).length ? `${barber.availability.workDays.length} days set` : 'No days set')}</td>
+    </tr>
+  `).join('');
+}
+
+function resetAdminEditor(message = 'Form reset.') {
+  const token = adminTokenField.value;
+  adminForm.reset();
+  adminTokenField.value = token;
+  adminModeField.value = 'create';
+  editingBarberId = null;
+  submitAdminBtn.textContent = 'Save Barber';
+  cancelEditBtn.hidden = true;
+  updateInvitePreview();
+  setAdminStatus(message);
+}
+
+function fillAdminForm(barber) {
+  adminNameField.value = barber.name || '';
+  adminRoleField.value = barber.role || '';
+  adminExperienceField.value = barber.experience || '';
+  adminAccessCodeField.value = barber.accessCode || '';
+  adminPhoneNumberField.value = barber.phoneNumber || '';
+  adminBioField.value = barber.bio || '';
+  adminBlockedTimesField.value = (barber.availability?.blockedSlots || []).filter((slot) => slot.time).map((slot) => slot.time).join(', ');
+  adminBlockedDatesField.value = (barber.availability?.blockedSlots || []).filter((slot) => slot.date).map((slot) => slot.date).join(', ');
+
+  adminForm.querySelectorAll('input[name="supportedServices"]').forEach((input) => {
+    input.checked = (barber.supportedServices || []).includes(input.value);
+  });
+
+  adminForm.querySelectorAll('input[name="workDays"]').forEach((input) => {
+    input.checked = (barber.availability?.workDays || []).map(String).includes(input.value);
+  });
+
+  adminModeField.value = 'edit';
+  editingBarberId = barber.id;
+  submitAdminBtn.textContent = 'Save Changes';
+  cancelEditBtn.hidden = false;
+  updateInvitePreview(barber);
+  setAdminStatus(`Editing ${barber.name}.`);
+  adminNameField.focus();
+}
+
+function renderBarbers(barbers) {
+  if (!barbers.length) {
+    adminBarberList.innerHTML = `<tr><td colspan="7" class="empty-state">No barbers found. Create your first barber to start receiving bookings.</td></tr>`;
+    return;
+  }
+
+  adminBarberList.innerHTML = barbers.map((barber) => `
+    <tr>
+      <td>
+        <strong>${escapeHtml(barber.name)}</strong>
+        <div class="status-copy">${escapeHtml(barber.experience)}</div>
+      </td>
+      <td>${escapeHtml(barber.role)}</td>
+      <td><span class="status-badge ${barber.status === 'active' ? 'active' : 'deleted'}">${escapeHtml(barber.status)}</span></td>
+      <td>${escapeHtml(barber.maskedPhoneNumber || 'No number')}</td>
+      <td>${barber.phoneVerified ? '<span class="tiny-badge success">Verified</span>' : '<span class="tiny-badge danger">Pending</span>'}</td>
+      <td>${escapeHtml((barber.availability?.workDays || []).length ? `${barber.availability.workDays.length} days set` : 'Not set')}</td>
+      <td>
+        <div class="row-actions">
+          <button type="button" data-action="edit" data-barber-id="${escapeHtml(barber.id)}">Edit</button>
+          <button type="button" class="secondary" data-action="copy-invite" data-barber-id="${escapeHtml(barber.id)}">Copy Link</button>
+          <button type="button" class="secondary" data-action="copy-access" data-barber-id="${escapeHtml(barber.id)}">Copy Code</button>
+          ${barber.status === 'active'
+            ? `<button type="button" class="secondary" data-action="delete" data-barber-id="${escapeHtml(barber.id)}">Soft Delete</button>`
+            : `<button type="button" class="secondary" data-action="restore" data-barber-id="${escapeHtml(barber.id)}">Restore</button>`}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function applyBarberFilters() {
+  const search = barberSearchField.value.trim().toLowerCase();
+  const status = barberStatusFilter.value;
+  const filteredBarbers = cachedBarbers.filter((barber) => {
+    const matchesStatus = (() => {
+      if (status === 'all') return true;
+      if (status === 'inactive') return barber.status !== 'active';
+      if (status === 'pending-verification') return Boolean(barber.maskedPhoneNumber) && !barber.phoneVerified;
+      return barber.status === status;
+    })();
+
+    const haystack = [
+      barber.name,
+      barber.role,
+      barber.experience,
+      barber.maskedPhoneNumber || '',
+      ...(barber.supportedServices || [])
+    ].join(' ').toLowerCase();
+
+    return matchesStatus && (!search || haystack.includes(search));
+  });
+
+  renderBarbers(filteredBarbers);
+}
+
+async function copyText(value, successMessage) {
+  try {
+    await navigator.clipboard.writeText(value);
+    setAdminStatus(successMessage);
+  } catch (error) {
+    setAdminStatus('Unable to copy to clipboard in this browser context.', true);
+  }
+}
+
+function logoutAdmin() {
+  clearAdminSession();
+  adminTokenField.value = '';
+  cachedBarbers = [];
+  cachedReservations = [];
+  cachedNotifications = [];
+  cachedDashboardMetrics = {
+    pendingReservations: 0,
+    confirmedReservations: 0,
+    rejectedReservations: 0
+  };
+  renderBarbers([]);
+  renderTeamStatus([]);
+  renderOverviewBookings([]);
+  renderAdminReservations([]);
+  renderAdminNotifications([]);
+  renderPendingActions();
+  updateOverview([]);
+  resetAdminEditor('Admin session closed.');
+}
+
+async function loadAdminBarbers() {
+  if (!adminTokenField.value.trim()) {
+    setAdminStatus('Enter the admin token first.', true);
+    adminTokenField.focus();
+    return;
+  }
+
+  try {
+    const [barbersResponse, dashboardResponse, reservationsResponse, notificationsResponse] = await Promise.all([
+      fetch('/api/admin/barbers', { headers: getAdminHeaders() }),
+      fetch('/api/admin/dashboard', { headers: getAdminHeaders() }),
+      fetch('/api/admin/reservations?limit=40', { headers: getAdminHeaders() }),
+      fetch('/api/admin/notifications?limit=40', { headers: getAdminHeaders() })
+    ]);
+
+    const barbersPayload = await barbersResponse.json();
+    const dashboardPayload = await dashboardResponse.json();
+    const reservationsPayload = await reservationsResponse.json();
+    const notificationsPayload = await notificationsResponse.json();
+
+    if (!barbersResponse.ok) throw new Error(barbersPayload.message || barbersPayload.error || 'Unable to load barbers.');
+    if (!dashboardResponse.ok) throw new Error(dashboardPayload.message || dashboardPayload.error || 'Unable to load dashboard data.');
+    if (!reservationsResponse.ok) throw new Error(reservationsPayload.message || reservationsPayload.error || 'Unable to load bookings.');
+    if (!notificationsResponse.ok) throw new Error(notificationsPayload.message || notificationsPayload.error || 'Unable to load notifications.');
+
+    cachedBarbers = barbersPayload.barbers || [];
+    cachedDashboardMetrics = dashboardPayload.metrics || cachedDashboardMetrics;
+    cachedReservations = reservationsPayload.reservations || [];
+    cachedNotifications = notificationsPayload.notifications || [];
+
+    applyBarberFilters();
+    renderPendingActions();
+    renderTeamStatus(cachedBarbers);
+    renderOverviewBookings(dashboardPayload.recentReservations || cachedReservations);
+    renderAdminReservations(cachedReservations);
+    renderAdminNotifications(cachedNotifications);
+    updateOverview(cachedBarbers);
+    saveAdminSession();
+    setAdminStatus('Admin workspace loaded.');
+  } catch (error) {
+    setAdminStatus(error.message, true);
+  }
+}
+
+openAddBarberBtn.addEventListener('click', () => {
+  document.getElementById('barberEditorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  adminNameField.focus();
+});
+
+barberFilterAddBtn.addEventListener('click', () => {
+  document.getElementById('barberEditorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  adminNameField.focus();
+});
+
+loadBarbersBtn.addEventListener('click', loadAdminBarbers);
+refreshAdminBtn.addEventListener('click', loadAdminBarbers);
+logoutAdminBtn.addEventListener('click', logoutAdmin);
+barberSearchField.addEventListener('input', applyBarberFilters);
+barberStatusFilter.addEventListener('change', applyBarberFilters);
+adminTokenField.addEventListener('change', saveAdminSession);
+
+resetAdminBtn.addEventListener('click', () => {
+  resetAdminEditor();
+});
+
+cancelEditBtn.addEventListener('click', () => {
+  resetAdminEditor('Edit cancelled.');
+});
+
+adminForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  if (!adminTokenField.value.trim()) {
+    setAdminStatus('Enter the admin token before saving a barber.', true);
+    adminTokenField.focus();
+    return;
+  }
+
+  const payload = buildBarberPayload();
+
+  if (!payload.name || !payload.role || !payload.experience || !payload.bio) {
+    setAdminStatus('Complete the required barber identity fields.', true);
+    return;
+  }
+
+  if (!payload.supportedServices.length) {
+    setAdminStatus('Select at least one supported service.', true);
+    return;
+  }
+
+  if (!payload.availability.workDays.length) {
+    setAdminStatus('Select at least one working day.', true);
+    return;
+  }
+
+  if (!validatePhoneNumber(payload.phoneNumber)) {
+    setAdminStatus('Use a valid mobile number format, for example +351912345678.', true);
+    return;
+  }
+
+  const blockedSlotsError = validateBlockedSlots(payload.availability.blockedSlots);
+  if (blockedSlotsError) {
+    setAdminStatus(blockedSlotsError, true);
+    return;
+  }
+
+  try {
+    const preservedToken = adminTokenField.value.trim();
+    const isEditMode = adminModeField.value === 'edit' && editingBarberId;
+    const response = await fetch(isEditMode ? `/api/admin/barbers/${editingBarberId}` : '/api/admin/barbers', {
+      method: isEditMode ? 'PATCH' : 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAdminHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || 'Unable to save barber.');
+    }
+
+    resetAdminEditor();
+    adminTokenField.value = preservedToken;
+    updateInvitePreview(result.barber);
+    setAdminStatus(
+      isEditMode
+        ? `${result.barber.name} updated successfully.`
+        : `${result.barber.name} created successfully. Share ${getOnboardingUrl(result.barber)} with access code ${result.barber.accessCode}.`
+    );
+    await loadAdminBarbers();
+  } catch (error) {
+    setAdminStatus(error.message, true);
+  }
+});
+
+adminBarberList.addEventListener('click', async (event) => {
+  const actionButton = event.target.closest('button[data-action]');
+  if (!actionButton) return;
+
+  const barberId = actionButton.dataset.barberId;
+  const action = actionButton.dataset.action;
+  const barber = cachedBarbers.find((item) => item.id === barberId);
+
+  if (!barber) {
+    setAdminStatus('Unable to find that barber in the current list.', true);
+    return;
+  }
+
+  if (action === 'copy-invite') {
+    await copyText(getOnboardingUrl(barber), `Invite URL copied for ${barber.name}.`);
+    return;
+  }
+
+  if (action === 'copy-access') {
+    await copyText(barber.accessCode || '', `Access code copied for ${barber.name}.`);
+    return;
+  }
+
+  if (action === 'edit') {
+    fillAdminForm(barber);
+    document.getElementById('barberEditorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+
+  if (!adminTokenField.value.trim()) {
+    setAdminStatus('Enter the admin token before using row actions.', true);
+    adminTokenField.focus();
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      action === 'restore' ? `/api/admin/barbers/${barberId}/restore` : `/api/admin/barbers/${barberId}`,
+      {
+        method: action === 'delete' ? 'DELETE' : 'PATCH',
+        headers: getAdminHeaders()
+      }
+    );
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || 'Unable to update barber status.');
+    }
+
+    setAdminStatus(result.message || 'Barber status updated successfully.');
+    await loadAdminBarbers();
+  } catch (error) {
+    setAdminStatus(error.message, true);
+  }
+});
+
+if (window.location.protocol === 'file:') {
+  protocolHint.textContent = 'You are viewing the admin in file mode. Open /admin through localhost to use live data and actions.';
+}
+
+const savedAdminToken = sessionStorage.getItem(ADMIN_SESSION_KEY);
+if (savedAdminToken) {
+  adminTokenField.value = savedAdminToken;
+}
+
+updateInvitePreview();
+renderPendingActions();
+renderBarbers([]);
+renderTeamStatus([]);
+renderOverviewBookings([]);
+renderAdminReservations([]);
+renderAdminNotifications([]);
+updateOverview([]);
+
+if (savedAdminToken && window.location.protocol !== 'file:') {
+  loadAdminBarbers();
+}
+</script>
+</body>
+</html>

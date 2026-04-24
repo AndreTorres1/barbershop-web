@@ -1,0 +1,9 @@
+{
+  "name": "barbershop-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Sharp Cut landing page with a lightweight barber management backend",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
