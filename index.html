@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Sharp Cut — Premium Barbershop Porto</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,700&amp;family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&amp;family=DM+Sans:wght@300;400;500&amp;display=swap" rel="stylesheet">
 <style>
 :root {
   --gold: #b8953a;
@@ -24,6 +24,23 @@
 html { scroll-behavior: smooth; }
 body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--cream); overflow-x: hidden; cursor: none; }
 
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 1rem;
+  background: var(--gold);
+  color: var(--dark);
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  z-index: 3000;
+  font-weight: 600;
+}
+.skip-link:focus { top: 1rem; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--gold-light);
+  outline-offset: 3px;
+}
+
 /* Custom cursor */
 .cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; transform: translate(-50%, -50%); }
 .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(184,149,58,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transition: all 0.25s ease; transform: translate(-50%, -50%); }
@@ -39,6 +56,17 @@ nav.scrolled { background: rgba(12,10,6,0.97); backdrop-filter: blur(20px); padd
 .nav-logo { text-align: center; }
 .nav-logo-main { font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 6px; text-transform: uppercase; color: #fff; display: block; }
 .nav-logo-sub { font-family: 'DM Sans', sans-serif; font-size: 0.6rem; letter-spacing: 8px; text-transform: uppercase; color: var(--gold); }
+.nav-toggle {
+  display: none;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: #fff;
+  padding: 0.8rem 1rem;
+  font-size: 0.68rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: 'DM Sans', sans-serif;
+}
 .nav-links { display: flex; gap: 3rem; list-style: none; }
 .nav-links a { font-size: 0.72rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none; transition: color 0.3s; position: relative; }
 .nav-links a::after { content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 1px; background: var(--gold); transition: width 0.3s; }
@@ -123,6 +151,13 @@ nav.scrolled { background: rgba(12,10,6,0.97); backdrop-filter: blur(20px); padd
 .strip-item:last-child { border-right: none; }
 .strip-num { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--dark); display: block; line-height: 1; }
 .strip-label { font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(12,10,6,0.6); margin-top: 0.3rem; display: block; }
+
+/* EXPERIENCE */
+.experience { padding: 6rem 5rem; background: var(--dark); }
+.experience-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
+.experience-card { background: var(--dark2); border: 1px solid var(--border); padding: 2rem; }
+.experience-card strong { display: block; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 400; color: #fff; margin-bottom: 0.8rem; }
+.experience-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.8; }
 
 /* SECTION SHARED */
 .section-label-block { display: flex; align-items: center; gap: 1.2rem; margin-bottom: 1.5rem; }
@@ -220,20 +255,688 @@ nav.scrolled { background: rgba(12,10,6,0.97); backdrop-filter: blur(20px); padd
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .field { display: flex; flex-direction: column; gap: 0.4rem; }
 .field label { font-size: 0.62rem; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+.control-shell { position: relative; }
+.control-shell.select-shell::after {
+  content: '';
+  position: absolute;
+  right: 1.15rem;
+  top: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-right: 2px solid rgba(240,230,200,0.8);
+  border-bottom: 2px solid rgba(240,230,200,0.8);
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+}
 .field input, .field select, .field textarea {
   background: rgba(255,255,255,0.04); border: 1px solid var(--border);
   color: #fff; padding: 0.95rem 1.1rem; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
   outline: none; transition: border-color 0.3s; width: 100%;
 }
+.control-shell.select-shell select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 3rem;
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02));
+}
 .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--gold); background: rgba(184,149,58,0.04); }
 .field select option { background: var(--dark2); }
 .field textarea { height: 100px; resize: none; }
+.field-note {
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.field-note.strong {
+  color: var(--gold-light);
+}
+.form-status { min-height: 1.2rem; font-size: 0.82rem; color: var(--gold-light); }
+.form-status.error { color: #ff9b8f; }
+.form-status.success { color: #bde7ba; }
 .submit-btn {
   background: var(--gold); color: var(--dark); border: none; padding: 1.2rem;
   font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
   font-weight: 500; cursor: none; transition: background 0.3s; margin-top: 0.5rem; width: 100%;
 }
 .submit-btn:hover { background: var(--gold-light); }
+
+/* BOOKING EXPERIENCE */
+.booking {
+  display: block;
+  padding: 6rem 5rem;
+  background:
+    radial-gradient(circle at top left, rgba(184,149,58,0.1), transparent 22%),
+    linear-gradient(180deg, #f7f3eb, #efe8dc);
+  color: var(--text);
+}
+.booking-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) 360px;
+  gap: 2rem;
+  align-items: start;
+}
+.booking-app {
+  background: rgba(255,255,255,0.74);
+  border: 1px solid rgba(42,34,24,0.08);
+  border-radius: 32px;
+  padding: 2rem;
+  box-shadow: 0 30px 80px rgba(30, 23, 16, 0.08);
+}
+.booking-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.booking-kicker {
+  font-size: 0.72rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #8b7d6c;
+  margin-bottom: 0.7rem;
+}
+.booking-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 4vw, 4.6rem);
+  font-weight: 500;
+  line-height: 0.98;
+  color: #15110b;
+}
+.booking-copy {
+  margin-top: 0.9rem;
+  max-width: 620px;
+  color: #6f6457;
+  line-height: 1.8;
+  font-size: 0.95rem;
+}
+.booking-mini-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(42,34,24,0.08);
+  color: #43382d;
+  font-size: 0.84rem;
+}
+.booking-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.flow-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.95rem;
+  color: #9c8d7a;
+  cursor: pointer;
+}
+.flow-step::after {
+  content: '›';
+  color: rgba(42,34,24,0.34);
+  margin-left: 0.3rem;
+}
+.flow-step:last-child::after { display: none; }
+.flow-step strong { color: inherit; font-weight: 600; }
+.flow-step.active strong,
+.flow-step.completed strong { color: #1a150f; }
+.flow-step.completed {
+  color: #5c513f;
+}
+.booking-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.booking-panel {
+  display: none;
+  border: 1px solid rgba(42,34,24,0.1);
+  border-radius: 24px;
+  padding: 1.4rem;
+  background: rgba(255,255,255,0.74);
+}
+.booking-panel.is-current {
+  display: block;
+}
+.booking-panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.booking-panel-label {
+  font-size: 0.72rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #8b7d6c;
+  margin-bottom: 0.45rem;
+}
+.booking-panel h4 {
+  font-size: 1.65rem;
+  font-family: 'Playfair Display', serif;
+  font-weight: 500;
+  color: #15110b;
+}
+.booking-panel-copy {
+  color: #786d61;
+  line-height: 1.7;
+  font-size: 0.92rem;
+}
+.booking-panel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(98, 78, 48, 0.06);
+  color: #5c503d;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.service-selection-list,
+.professional-selection-list,
+.time-slots {
+  display: grid;
+  gap: 0.9rem;
+}
+.service-card,
+.professional-card,
+.time-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  text-align: left;
+  border-radius: 22px;
+  border: 1px solid rgba(42,34,24,0.1);
+  background: rgba(255,255,255,0.9);
+  padding: 1.35rem 1.4rem;
+  cursor: pointer;
+}
+.service-card:hover,
+.professional-card:hover,
+.time-card:hover {
+  border-color: rgba(184,149,58,0.45);
+  box-shadow: 0 15px 30px rgba(31, 24, 15, 0.07);
+}
+.service-card.is-selected,
+.professional-card.is-selected,
+.time-card.is-selected {
+  border-color: rgba(92, 75, 241, 0.45);
+  box-shadow: 0 18px 40px rgba(92, 75, 241, 0.12);
+}
+.service-card-main,
+.professional-card-main {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+.service-icon,
+.professional-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(184,149,58,0.2), rgba(184,149,58,0.08));
+  display: grid;
+  place-items: center;
+  color: #5b4520;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.professional-avatar {
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f3ede2;
+}
+.professional-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.service-card-title,
+.professional-card-title {
+  font-size: 1.2rem;
+  color: #16120c;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+.service-card-meta,
+.professional-card-meta,
+.professional-card-copy {
+  font-size: 0.92rem;
+  color: #7a6f64;
+  line-height: 1.6;
+}
+.service-card-price {
+  color: #16120c;
+  font-weight: 700;
+  margin-top: 0.8rem;
+}
+.service-card-action,
+.professional-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(42,34,24,0.14);
+  color: #1c1711;
+  background: rgba(255,255,255,0.75);
+  font-weight: 500;
+}
+.service-card.is-selected .service-card-action,
+.professional-card.is-selected .professional-card-action,
+.time-card.is-selected .time-card-action {
+  background: #5c4bf1;
+  border-color: #5c4bf1;
+  color: #fff;
+}
+.availability-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+}
+.date-pill {
+  min-width: 82px;
+  border-radius: 999px;
+  border: 1px solid rgba(42,34,24,0.12);
+  background: rgba(255,255,255,0.82);
+  padding: 0.85rem 0.75rem;
+  display: grid;
+  gap: 0.15rem;
+  justify-items: center;
+  cursor: pointer;
+}
+.date-pill strong {
+  font-size: 1.5rem;
+  color: #17120d;
+}
+.date-pill span {
+  color: #84796d;
+  font-size: 0.84rem;
+}
+.date-pill.is-selected {
+  background: #5c4bf1;
+  border-color: #5c4bf1;
+}
+.date-pill.is-selected strong,
+.date-pill.is-selected span {
+  color: #fff;
+}
+.date-pill.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.time-slots {
+  margin-top: 1rem;
+}
+.time-card {
+  grid-template-columns: 1fr auto;
+}
+.time-card strong {
+  font-size: 1.15rem;
+  color: #17120d;
+}
+.time-card small {
+  color: #84796d;
+  display: block;
+  margin-top: 0.35rem;
+}
+.time-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 102px;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(42,34,24,0.12);
+  color: #1c1711;
+  background: rgba(255,255,255,0.75);
+}
+.booking-empty-state {
+  border: 1px dashed rgba(42,34,24,0.14);
+  border-radius: 24px;
+  background: rgba(255,255,255,0.5);
+  padding: 2rem;
+  text-align: center;
+}
+.booking-empty-state strong {
+  display: block;
+  font-size: 1.35rem;
+  color: #19130d;
+  margin-bottom: 0.55rem;
+}
+.booking-empty-state p {
+  color: #786d61;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+.booking-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.booking-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.booking-contact-grid .field,
+.booking-confirm .field {
+  gap: 0.55rem;
+}
+.booking-confirm .field label {
+  color: #7f7367;
+}
+.booking-confirm .field input,
+.booking-confirm .field textarea {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(42,34,24,0.1);
+  color: #1a150f;
+}
+.booking-sidebar {
+  position: sticky;
+  top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+.booking-summary {
+  border-radius: 28px;
+  border: 1px solid rgba(42,34,24,0.08);
+  background: rgba(255,255,255,0.86);
+  padding: 1.5rem;
+  box-shadow: 0 25px 60px rgba(31, 24, 15, 0.08);
+}
+.booking-summary-shop {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(42,34,24,0.08);
+}
+.booking-summary-media {
+  width: 74px;
+  height: 74px;
+  border-radius: 18px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.booking-summary-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.booking-summary-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #17120d;
+  margin-bottom: 0.25rem;
+}
+.booking-summary-meta {
+  color: #75695d;
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+.booking-summary-list {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 0;
+}
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+}
+.summary-row-label {
+  color: #7d7266;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.summary-row-value {
+  color: #17120d;
+  text-align: right;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(42,34,24,0.08);
+  margin-top: 0.4rem;
+}
+.summary-total strong {
+  font-size: 1.55rem;
+  font-family: 'Playfair Display', serif;
+  color: #17120d;
+}
+.summary-action {
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 1rem 1.1rem;
+  background: #c6c0b4;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 1.2rem;
+}
+.summary-action.is-ready,
+.summary-action:hover {
+  background: #5c4bf1;
+}
+.booking-tiny-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid rgba(42,34,24,0.1);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.72);
+  color: #221b14;
+  padding: 0.75rem 0.95rem;
+}
+
+@media (max-width: 1100px) {
+  .booking {
+    padding: 4rem 1.5rem;
+  }
+  .booking-shell {
+    grid-template-columns: 1fr;
+  }
+  .booking-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .booking-app {
+    padding: 1.2rem;
+    border-radius: 24px;
+  }
+  .booking-topbar,
+  .booking-panel-head,
+  .summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .booking-contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .service-card,
+  .professional-card,
+  .time-card {
+    grid-template-columns: 1fr;
+  }
+  .service-card-action,
+  .professional-card-action,
+  .time-card-action {
+    width: 100%;
+  }
+}
+
+/* ADMIN */
+.admin-panel {
+  padding: 7rem 5rem;
+  background: #090705;
+  border-top: 1px solid var(--border);
+}
+.admin-wrap {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 2rem;
+  align-items: start;
+}
+.admin-intro p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.9;
+  max-width: 460px;
+}
+.admin-card,
+.admin-list-card {
+  background: var(--dark2);
+  border: 1px solid var(--border);
+  padding: 2rem;
+}
+.admin-card h3,
+.admin-list-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 0.45rem;
+}
+.admin-subtext {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-bottom: 1.5rem;
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  border: 1px solid var(--border);
+  padding: 0.85rem 0.9rem;
+  background: rgba(255,255,255,0.03);
+}
+.checkbox-item input {
+  width: auto;
+  accent-color: var(--gold);
+}
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.admin-btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid var(--border);
+}
+.admin-status {
+  min-height: 1.3rem;
+  font-size: 0.82rem;
+  color: var(--gold-light);
+}
+.barber-admin-list {
+  display: grid;
+  gap: 1rem;
+}
+.barber-admin-item {
+  border: 1px solid var(--border);
+  padding: 1rem 1.1rem;
+  background: rgba(255,255,255,0.02);
+}
+.barber-admin-item strong {
+  display: block;
+  color: #fff;
+  margin-bottom: 0.35rem;
+}
+.barber-admin-meta {
+  font-size: 0.74rem;
+  color: var(--gold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+.barber-admin-item p {
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.7;
+}
+.portal-panel {
+  padding: 0 5rem 7rem;
+  background: #090705;
+}
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem;
+}
+.portal-card {
+  background: var(--dark2);
+  border: 1px solid var(--border);
+  padding: 2rem;
+}
+.portal-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 0.45rem;
+}
+.portal-status {
+  min-height: 1.3rem;
+  font-size: 0.82rem;
+  color: var(--gold-light);
+}
+.availability-summary {
+  display: grid;
+  gap: 0.9rem;
+}
+.availability-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0 0.65rem 0.65rem 0;
+}
 
 /* TESTIMONIALS */
 .testimonials { padding: 8rem 5rem; background: var(--dark); overflow: hidden; }
@@ -276,13 +979,35 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
 
 @media (max-width: 900px) {
   nav { padding: 1.2rem 1.5rem; }
-  .nav-links { display: none; }
+  .nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+  .nav-links {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 1.5rem;
+    right: 1.5rem;
+    background: rgba(12,10,6,0.98);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.8rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: all 0.3s ease;
+  }
+  .nav-links.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .nav-links a { display: block; padding: 0.85rem 0.5rem; }
   .hero h1 { font-size: 3rem; }
   .hero-content { padding: 0 1.5rem 5rem; }
   .strip { grid-template-columns: 1fr 1fr; }
-  .services, .team, .testimonials, .booking-left, .booking-right { padding: 4rem 1.5rem; }
+  .services, .team, .testimonials, .booking-left, .booking-right, .experience, .admin-panel, .portal-panel { padding: 4rem 1.5rem; }
   .services-header { grid-template-columns: 1fr; }
-  .services-grid, .team-grid, .testimonials-grid { grid-template-columns: 1fr; }
+  .services-grid, .team-grid, .testimonials-grid, .experience-grid, .admin-wrap, .admin-grid, .checkbox-grid, .portal-grid { grid-template-columns: 1fr; }
   .about { grid-template-columns: 1fr; }
   .about-content { padding: 3rem 1.5rem; }
   .gallery { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
@@ -295,27 +1020,44 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
   .footer-bottom { padding: 1.5rem; flex-direction: column; gap: 1rem; text-align: center; }
   .hero-side-text { display: none; }
 }
+
+@media (max-width: 640px) {
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+  .hero-actions { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .hero-scroll { display: none; }
+  .strip { grid-template-columns: 1fr; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  body { cursor: auto; }
+  .cursor, .cursor-ring { display: none; }
+  .submit-btn { cursor: pointer; }
+}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 
-<nav id="navbar">
-  <div style="width:140px;"></div>
+<nav id="navbar" aria-label="Primary">
+  <button class="nav-toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navMenu">Menu</button>
   <div class="nav-logo">
     <span class="nav-logo-main">The Sharp Cut</span>
     <span class="nav-logo-sub">Premium Barbershop</span>
   </div>
-  <ul class="nav-links">
+  <ul class="nav-links" id="navMenu">
     <li><a href="#services">Services</a></li>
     <li><a href="#team">Barbers</a></li>
+    <li><a href="#experience">Experience</a></li>
     <li><a href="#booking">Booking</a></li>
     <li><a href="#booking" class="nav-cta">Book Now</a></li>
   </ul>
 </nav>
 
+<main id="main-content">
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-overlay"></div>
@@ -348,7 +1090,7 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
     <span class="strip-label">Happy Clients</span>
   </div>
   <div class="strip-item">
-    <span class="strip-num">6</span>
+    <span class="strip-num">3</span>
     <span class="strip-label">Master Barbers</span>
   </div>
   <div class="strip-item">
@@ -428,6 +1170,30 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
         <div class="service-price">€ 65</div>
         <div class="service-time">90 min</div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="experience" id="experience">
+  <div class="reveal">
+    <div class="section-label-block">
+      <div class="section-label-line"></div>
+      <div class="section-label-text">Why Choose Us</div>
+    </div>
+    <h2 class="section-title">More Than a Quick Cut</h2>
+  </div>
+  <div class="experience-grid">
+    <div class="experience-card reveal reveal-delay-1">
+      <strong>Consultation-led service</strong>
+      <p>Every appointment starts with a short conversation so the barber matches the cut to your routine, face shape, and maintenance preference.</p>
+    </div>
+    <div class="experience-card reveal reveal-delay-2">
+      <strong>Reliable timing</strong>
+      <p>Service lengths are clear upfront, which makes it easier to book around work, lunch breaks, or a busy weekend schedule.</p>
+    </div>
+    <div class="experience-card reveal reveal-delay-3">
+      <strong>Premium finishing touches</strong>
+      <p>Warm towels, quality products, and precise detailing turn the visit into a polished grooming ritual instead of a rushed appointment.</p>
     </div>
   </div>
 </section>
@@ -572,73 +1338,181 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
 </section>
 
 <section class="booking" id="booking">
-  <div class="booking-left">
-    <div class="reveal">
-      <div class="section-label-block">
-        <div class="section-label-line"></div>
-        <div class="section-label-text">Visit Us</div>
+  <div class="booking-shell">
+    <form class="booking-app reveal" id="bookingForm" novalidate>
+      <div class="booking-topbar">
+        <div>
+          <div class="booking-kicker">Book online</div>
+          <h2 class="booking-title">Reserve your chair</h2>
+          <p class="booking-copy">Choose the service, select a barber, and request one of the live available slots.</p>
+        </div>
+        <div class="booking-mini-note">Average setup time: under 1 minute</div>
       </div>
-      <h2 class="section-title">Reserve Your<br><em>Experience</em></h2>
-    </div>
-    <p class="booking-desc reveal reveal-delay-1">Walk-ins are always welcome, but booking ahead ensures you get the right barber at the right time. Takes 30 seconds.</p>
-    <div class="hours reveal reveal-delay-2">
-      <div class="hours-row"><span class="hours-day">Monday — Friday</span><span class="hours-time">9:00 – 20:00</span></div>
-      <div class="hours-row"><span class="hours-day">Saturday</span><span class="hours-time">9:00 – 18:00</span></div>
-      <div class="hours-row"><span class="hours-day">Sunday</span><span class="hours-time">10:00 – 15:00</span></div>
-      <div class="hours-row"><span class="hours-day">Public Holidays</span><span class="hours-time hours-closed">Closed</span></div>
-    </div>
-    <div class="contact-items reveal reveal-delay-3">
-      <div class="contact-row"><div class="contact-dot"></div><span class="contact-val">Rua de Santa Catarina 210, Porto</span></div>
-      <div class="contact-row"><div class="contact-dot"></div><span class="contact-val">+351 222 111 000</span></div>
-      <div class="contact-row"><div class="contact-dot"></div><span class="contact-val">hello@thesharpcut.pt</span></div>
-    </div>
-  </div>
-  <div class="booking-right reveal">
-    <h3>Book Your Seat</h3>
-    <p>Select your service, barber, and preferred time below.</p>
-    <div class="form">
-      <div class="form-row">
-        <div class="field"><label>First Name</label><input type="text" placeholder="Ricardo"></div>
-        <div class="field"><label>Last Name</label><input type="text" placeholder="Silva"></div>
+
+      <div class="booking-flow" id="bookingFlow">
+        <div class="flow-step active" data-step-label="service"><strong>Services</strong></div>
+        <div class="flow-step" data-step-label="professional"><strong>Professional</strong></div>
+        <div class="flow-step" data-step-label="time"><strong>Time</strong></div>
+        <div class="flow-step" data-step-label="confirm"><strong>Confirm</strong></div>
       </div>
-      <div class="field"><label>Email</label><input type="email" placeholder="you@email.com"></div>
-      <div class="field"><label>Phone</label><input type="tel" placeholder="+351 900 000 000"></div>
-      <div class="field">
-        <label>Service</label>
-        <select>
-          <option value="">Select a service...</option>
-          <option>Classic Haircut — €22</option>
-          <option>Cut and Beard — €35</option>
-          <option>Hot Towel Shave — €28</option>
-          <option>Beard Sculpting — €18</option>
-          <option>Kids Haircut — €15</option>
-          <option>VIP Experience — €65</option>
-        </select>
-      </div>
-      <div class="form-row">
+
+      <div class="booking-native" aria-hidden="true">
         <div class="field">
-          <label>Barber</label>
-          <select>
-            <option>No preference</option>
-            <option>Ricardo Fonseca</option>
-            <option>Tomás Alves</option>
-            <option>Miguel Costa</option>
+          <label for="service">Service</label>
+          <select id="service" name="service" required>
+            <option value="">Select a service...</option>
+            <option>Classic Haircut — €22</option>
+            <option>Cut and Beard — €35</option>
+            <option>Hot Towel Shave — €28</option>
+            <option>Beard Sculpting — €18</option>
+            <option>Kids Haircut — €15</option>
+            <option>VIP Experience — €65</option>
           </select>
         </div>
-        <div class="field"><label>Date</label><input type="date"></div>
+        <div class="field">
+          <label for="barber">Barber</label>
+          <select id="barber" name="barber" required>
+            <option value="">Choose a barber...</option>
+            <option value="no-preference">No preference — first available</option>
+            <option value="ricardo-fonseca">Ricardo Fonseca</option>
+            <option value="tomas-alves">Tomás Alves</option>
+            <option value="miguel-costa">Miguel Costa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="date">Date</label>
+          <select id="date" name="date" required>
+            <option value="">Choose a service first...</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="time">Preferred Time</label>
+          <select id="time" name="time" required>
+            <option value="">Choose an available date first...</option>
+          </select>
+        </div>
       </div>
-      <div class="field">
-        <label>Preferred Time</label>
-        <select>
-          <option>09:00</option><option>09:30</option><option>10:00</option>
-          <option>10:30</option><option>11:00</option><option>14:00</option>
-          <option>15:00</option><option>16:00</option><option>17:00</option><option>18:00</option>
-        </select>
+
+      <div class="booking-grid">
+        <section class="booking-panel" id="bookingServicesPanel">
+          <div class="booking-panel-head">
+            <div>
+              <div class="booking-panel-label">Step 1</div>
+              <h4>Choose your service</h4>
+            </div>
+            <div class="booking-panel-tag">Signature services</div>
+          </div>
+          <p class="booking-panel-copy">Select the appointment type to begin.</p>
+          <div class="service-selection-list" id="serviceSelectionList"></div>
+        </section>
+
+        <section class="booking-panel" id="bookingProfessionalPanel">
+          <div class="booking-panel-head">
+            <div>
+              <div class="booking-panel-label">Step 2</div>
+              <h4>Select professional</h4>
+            </div>
+            <div class="booking-panel-tag">Pick a favourite or keep it flexible</div>
+          </div>
+          <p class="booking-panel-copy">Pick a specific barber or keep maximum availability.</p>
+          <div class="professional-selection-list" id="professionalSelectionList"></div>
+          <div class="field-note" id="barberAvailability">Choose a service, barber, and date to see the real availability.</div>
+        </section>
+
+        <section class="booking-panel" id="bookingTimePanel">
+          <div class="booking-panel-head">
+            <div>
+              <div class="booking-panel-label">Step 3</div>
+              <h4>Select date & time</h4>
+            </div>
+            <button class="booking-tiny-link" id="jumpNextDateBtn" type="button">Next available date</button>
+          </div>
+          <p class="booking-panel-copy">Choose one of the available dates and then lock a time request.</p>
+          <div class="field-note" id="dateAvailability">Pick a service and barber to load the next available dates.</div>
+          <div class="availability-strip" id="dateSelectionList"></div>
+          <div class="field-note" id="timeAvailability">Available times will update after you choose a date.</div>
+          <div class="time-slots" id="timeSelectionList"></div>
+        </section>
+
+        <section class="booking-panel booking-confirm" id="bookingConfirmPanel">
+          <div class="booking-panel-head">
+            <div>
+              <div class="booking-panel-label">Step 4</div>
+              <h4>Confirm your details</h4>
+            </div>
+            <div class="booking-panel-tag">We only need the essentials</div>
+          </div>
+          <div class="booking-contact-grid">
+            <div class="field">
+              <label for="firstName">First Name</label>
+              <input id="firstName" name="firstName" type="text" placeholder="Ricardo" required>
+            </div>
+            <div class="field">
+              <label for="lastName">Last Name</label>
+              <input id="lastName" name="lastName" type="text" placeholder="Silva" required>
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@email.com" required>
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" placeholder="+351 900 000 000" required>
+            </div>
+          </div>
+          <div class="field" style="margin-top:1rem;">
+            <label for="notes">Notes</label>
+            <textarea id="notes" name="notes" placeholder="Optional: haircut style, beard preference, or special request."></textarea>
+          </div>
+          <div class="form-status" id="formStatus" aria-live="polite"></div>
+        </section>
       </div>
-      <button class="submit-btn">Confirm Booking</button>
-    </div>
+    </form>
+
+    <aside class="booking-sidebar reveal reveal-delay-1">
+      <div class="booking-summary">
+        <div class="booking-summary-shop">
+          <div class="booking-summary-media">
+            <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=300" alt="The Sharp Cut studio">
+          </div>
+          <div>
+            <div class="booking-summary-title">The Sharp Cut</div>
+            <div class="booking-summary-meta">Rua de Santa Catarina 210, Porto<br>4.9★ rated premium barbering studio</div>
+          </div>
+        </div>
+
+        <div class="booking-summary-list">
+          <div class="summary-row">
+            <div class="summary-row-label">Service</div>
+            <div class="summary-row-value" id="summaryService">Choose a service</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-row-label">Professional</div>
+            <div class="summary-row-value" id="summaryBarber">Select a barber</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-row-label">Date</div>
+            <div class="summary-row-value" id="summaryDate">Pick a date</div>
+          </div>
+          <div class="summary-row">
+            <div class="summary-row-label">Time</div>
+            <div class="summary-row-value" id="summaryTime">Choose a slot</div>
+          </div>
+        </div>
+
+        <div class="summary-total">
+          <span class="summary-row-label">Total</span>
+          <strong id="summaryTotal">free</strong>
+        </div>
+
+        <button class="summary-action" id="bookingContinue" type="button">Continue</button>
+      </div>
+
+    </aside>
   </div>
 </section>
+
+</main>
 
 <footer>
   <div class="footer-main">
@@ -650,38 +1524,38 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
     <div class="footer-col">
       <span class="footer-col-title">Services</span>
       <ul>
-        <li><a href="#">Classic Haircut</a></li>
-        <li><a href="#">Cut and Beard</a></li>
-        <li><a href="#">Hot Towel Shave</a></li>
-        <li><a href="#">Beard Sculpting</a></li>
-        <li><a href="#">VIP Experience</a></li>
+        <li><a href="#services">Classic Haircut</a></li>
+        <li><a href="#services">Cut and Beard</a></li>
+        <li><a href="#services">Hot Towel Shave</a></li>
+        <li><a href="#services">Beard Sculpting</a></li>
+        <li><a href="#services">VIP Experience</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <span class="footer-col-title">Studio</span>
       <ul>
-        <li><a href="#">Our Story</a></li>
-        <li><a href="#">The Team</a></li>
-        <li><a href="#">Gallery</a></li>
-        <li><a href="#">Careers</a></li>
+        <li><a href="#experience">Our Experience</a></li>
+        <li><a href="#team">The Team</a></li>
+        <li><a href="#booking">Book Online</a></li>
+        <li><a href="#booking">Visit Us</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <span class="footer-col-title">Contact</span>
       <ul>
-        <li><a href="#">Book Online</a></li>
-        <li><a href="#">+351 222 111 000</a></li>
-        <li><a href="#">hello@thesharpcut.pt</a></li>
-        <li><a href="#">Porto, Portugal</a></li>
+        <li><a href="#booking">Book Online</a></li>
+        <li><a href="tel:+351222111000">+351 222 111 000</a></li>
+        <li><a href="mailto:hello@thesharpcut.pt">hello@thesharpcut.pt</a></li>
+        <li><a href="https://maps.google.com/?q=Rua+de+Santa+Catarina+210,+Porto" target="_blank" rel="noreferrer">Porto, Portugal</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
-    <span class="footer-bottom-text">© 2024 The Sharp Cut Barbershop. All rights reserved.</span>
+    <span class="footer-bottom-text">© <span id="currentYear">2024</span> The Sharp Cut Barbershop. All rights reserved.</span>
     <div class="footer-social">
-      <a href="#" class="social-link">IG</a>
-      <a href="#" class="social-link">FB</a>
-      <a href="#" class="social-link">TT</a>
+      <a href="#booking" class="social-link" aria-label="Book online">BK</a>
+      <a href="tel:+351222111000" class="social-link" aria-label="Call the barbershop">PH</a>
+      <a href="mailto:hello@thesharpcut.pt" class="social-link" aria-label="Email the barbershop">EM</a>
     </div>
   </div>
 </footer>
@@ -690,17 +1564,36 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
 // Custom cursor
 const cursor = document.getElementById('cursor');
 const ring = document.getElementById('cursorRing');
-document.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top = e.clientY + 'px';
-  setTimeout(() => {
-    ring.style.left = e.clientX + 'px';
-    ring.style.top = e.clientY + 'px';
-  }, 80);
+const prefersFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+if (prefersFinePointer) {
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 80);
+  });
+  document.querySelectorAll('a, button, .service-item, .barber-card').forEach(el => {
+    el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; ring.style.transform = 'translate(-50%,-50%) scale(1.4)'; ring.style.borderColor = 'rgba(184,149,58,0.8)'; });
+    el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.borderColor = 'rgba(184,149,58,0.5)'; });
+  });
+}
+
+const navToggle = document.getElementById('navToggle');
+const navMenu = document.getElementById('navMenu');
+
+navToggle.addEventListener('click', () => {
+  const isOpen = navMenu.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', String(isOpen));
 });
-document.querySelectorAll('a, button, .service-item, .barber-card').forEach(el => {
-  el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; ring.style.transform = 'translate(-50%,-50%) scale(1.4)'; ring.style.borderColor = 'rgba(184,149,58,0.8)'; });
-  el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.borderColor = 'rgba(184,149,58,0.5)'; });
+
+document.querySelectorAll('#navMenu a').forEach(link => {
+  link.addEventListener('click', () => {
+    navMenu.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  });
 });
 
 // Nav scroll
@@ -713,6 +1606,952 @@ const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+const bookingForm = document.getElementById('bookingForm');
+const formStatus = document.getElementById('formStatus');
+const serviceField = document.getElementById('service');
+const barberField = document.getElementById('barber');
+const dateField = document.getElementById('date');
+const timeField = document.getElementById('time');
+const barberAvailability = document.getElementById('barberAvailability');
+const dateAvailability = document.getElementById('dateAvailability');
+const timeAvailability = document.getElementById('timeAvailability');
+const currentYear = document.getElementById('currentYear');
+const serviceSelectionList = document.getElementById('serviceSelectionList');
+const professionalSelectionList = document.getElementById('professionalSelectionList');
+const dateSelectionList = document.getElementById('dateSelectionList');
+const timeSelectionList = document.getElementById('timeSelectionList');
+const bookingContinue = document.getElementById('bookingContinue');
+const jumpNextDateBtn = document.getElementById('jumpNextDateBtn');
+const bookingFlowSteps = [...document.querySelectorAll('.flow-step')];
+const summaryService = document.getElementById('summaryService');
+const summaryBarber = document.getElementById('summaryBarber');
+const summaryDate = document.getElementById('summaryDate');
+const summaryTime = document.getElementById('summaryTime');
+const summaryTotal = document.getElementById('summaryTotal');
+const firstNameField = document.getElementById('firstName');
+const lastNameField = document.getElementById('lastName');
+const emailField = document.getElementById('email');
+const phoneField = document.getElementById('phone');
+const TIME_OPTIONS = ['09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+
+const serviceCatalog = {
+  'Classic Haircut — €22': {
+    title: 'Classic Haircut',
+    duration: '45 min',
+    description: 'Consultation, precision cut, wash, and finish tailored to your style.',
+    priceLabel: 'from €22',
+    icon: 'HC'
+  },
+  'Cut and Beard — €35': {
+    title: 'Cut & Beard',
+    duration: '60 min',
+    description: 'Haircut with beard sculpting and sharp razor detailing for a complete refresh.',
+    priceLabel: 'from €35',
+    icon: 'CB'
+  },
+  'Hot Towel Shave — €28': {
+    title: 'Hot Towel Shave',
+    duration: '50 min',
+    description: 'Luxury straight-razor shave with hot towels and premium aftercare.',
+    priceLabel: 'from €28',
+    icon: 'HS'
+  },
+  'Beard Sculpting — €18': {
+    title: 'Beard Sculpting',
+    duration: '30 min',
+    description: 'Shape, definition, and conditioning for a cleaner and sharper beard line.',
+    priceLabel: 'from €18',
+    icon: 'BS'
+  },
+  'Kids Haircut — €15': {
+    title: 'Kids Haircut',
+    duration: '30 min',
+    description: 'Relaxed and patient service for younger clients with the same attention to detail.',
+    priceLabel: 'from €15',
+    icon: 'KD'
+  },
+  'VIP Experience — €65': {
+    title: 'VIP Experience',
+    duration: '90 min',
+    description: 'Haircut, beard work, towel ritual, massage, and premium finishing touches.',
+    priceLabel: 'from €65',
+    icon: 'VIP'
+  }
+};
+
+const barberProfiles = {
+  'ricardo-fonseca': {
+    role: 'Head Barber',
+    image: 'https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=240'
+  },
+  'tomas-alves': {
+    role: 'Senior Barber',
+    image: 'https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=240'
+  },
+  'miguel-costa': {
+    role: 'Barber',
+    image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=240'
+  }
+};
+
+const defaultBarberOptions = [
+  { value: '', label: 'Choose a barber...' },
+  { value: 'no-preference', label: 'No preference — first available' }
+];
+
+const fallbackBarbers = [
+  {
+    id: 'ricardo-fonseca',
+    name: 'Ricardo Fonseca',
+    role: 'Head Barber',
+    supportedServices: [
+      'Classic Haircut — €22',
+      'Cut and Beard — €35',
+      'Hot Towel Shave — €28',
+      'Beard Sculpting — €18',
+      'VIP Experience — €65'
+    ],
+    availability: {
+      workDays: [1, 2, 3, 4, 5],
+      blockedSlots: [{ time: '14:00' }, { date: '2026-05-01' }]
+    }
+  },
+  {
+    id: 'tomas-alves',
+    name: 'Tomás Alves',
+    role: 'Senior Barber',
+    supportedServices: [
+      'Classic Haircut — €22',
+      'Cut and Beard — €35',
+      'Beard Sculpting — €18',
+      'Kids Haircut — €15',
+      'VIP Experience — €65'
+    ],
+    availability: {
+      workDays: [2, 3, 4, 5, 6],
+      blockedSlots: [{ time: '10:30' }]
+    }
+  },
+  {
+    id: 'miguel-costa',
+    name: 'Miguel Costa',
+    role: 'Barber',
+    supportedServices: [
+      'Classic Haircut — €22',
+      'Kids Haircut — €15'
+    ],
+    availability: {
+      workDays: [0, 1, 3, 4, 6],
+      blockedSlots: [{ time: '09:00' }, { time: '18:00' }]
+    }
+  }
+];
+
+let usingFallbackAvailability = window.location.protocol === 'file:';
+let cachedBookingBarbers = [];
+let cachedAvailableDates = [];
+let cachedAvailableTimes = [];
+let focusedBookingStep = 'service';
+
+function getWeekday(dateString) {
+  if (!dateString) return null;
+  return new Date(`${dateString}T12:00:00`).getDay();
+}
+
+function normalizeBarberSelection(value) {
+  return !value || value === 'no-preference' ? 'no-preference' : value;
+}
+
+function formatHumanDate(dateString) {
+  const date = new Date(`${dateString}T12:00:00`);
+  return date.toLocaleDateString('en-GB', {
+    weekday: 'short',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
+function formatDate(date) {
+  return date.toISOString().split('T')[0];
+}
+
+function addDays(date, amount) {
+  const nextDate = new Date(date);
+  nextDate.setDate(nextDate.getDate() + amount);
+  return nextDate;
+}
+
+function formatTimeDisplay(timeValue) {
+  const [hours, minutes] = String(timeValue).split(':').map(Number);
+  const period = hours >= 12 ? 'pm' : 'am';
+  const normalizedHours = hours % 12 || 12;
+  return `${normalizedHours}:${String(minutes).padStart(2, '0')} ${period}`;
+}
+
+function getServiceMeta(serviceValue) {
+  return serviceCatalog[serviceValue] || {
+    title: serviceValue || 'Choose a service',
+    duration: '',
+    description: '',
+    priceLabel: 'free',
+    icon: 'SC'
+  };
+}
+
+function getBarberProfile(barber) {
+  const profile = barberProfiles[barber.id] || {};
+  return {
+    role: barber.role || profile.role || 'Barber',
+    image: profile.image || '',
+    initials: barber.name.split(' ').map((part) => part.charAt(0)).join('').slice(0, 2).toUpperCase()
+  };
+}
+
+function getStepState() {
+  if (!serviceField.value) return 'service';
+  if (!barberField.value) return 'professional';
+  if (!dateField.value || !timeField.value) return 'time';
+  return 'confirm';
+}
+
+function getStepOrder() {
+  return ['service', 'professional', 'time', 'confirm'];
+}
+
+function getPanelIdByStep(step) {
+  return {
+    service: 'bookingServicesPanel',
+    professional: 'bookingProfessionalPanel',
+    time: 'bookingTimePanel',
+    confirm: 'bookingConfirmPanel'
+  }[step];
+}
+
+function getVisibleStep() {
+  const stepOrder = getStepOrder();
+  const activeStep = getStepState();
+  const activeIndex = stepOrder.indexOf(activeStep);
+  const focusedIndex = stepOrder.indexOf(focusedBookingStep);
+
+  if (focusedIndex === -1 || focusedIndex > activeIndex) {
+    return activeStep;
+  }
+
+  return focusedBookingStep;
+}
+
+function setSelectOptions(field, options, placeholder, selectedValue = field.value) {
+  field.innerHTML = '';
+
+  const placeholderOption = document.createElement('option');
+  placeholderOption.value = '';
+  placeholderOption.textContent = placeholder;
+  field.appendChild(placeholderOption);
+
+  options.forEach((option) => {
+    const optionElement = document.createElement('option');
+    optionElement.value = option.value;
+    optionElement.textContent = option.label;
+    field.appendChild(optionElement);
+  });
+
+  if (options.some((option) => option.value === selectedValue)) {
+    field.value = selectedValue;
+  } else {
+    field.value = '';
+  }
+}
+
+function setBarberOptions(barbers) {
+  const previousValue = barberField.value;
+  const dynamicOptions = barbers.map((barber) => ({ value: barber.id, label: barber.name }));
+  setSelectOptions(barberField, [...defaultBarberOptions, ...dynamicOptions], 'Choose a barber...', previousValue);
+}
+
+function setFormStatus(message, type = '') {
+  formStatus.textContent = message;
+  formStatus.className = 'form-status';
+  if (type) {
+    formStatus.classList.add(type);
+  }
+}
+
+function renderFlowState() {
+  const stepOrder = getStepOrder();
+  const activeStep = getStepState();
+  const activeIndex = stepOrder.indexOf(activeStep);
+  const visibleStep = getVisibleStep();
+
+  bookingFlowSteps.forEach((stepElement, index) => {
+    stepElement.classList.remove('active', 'completed');
+    if (index < activeIndex) {
+      stepElement.classList.add('completed');
+    } else if (stepOrder[index] === visibleStep) {
+      stepElement.classList.add('active');
+    }
+  });
+}
+
+function renderVisibleStep() {
+  ['service', 'professional', 'time', 'confirm'].forEach((step) => {
+    const panel = document.getElementById(getPanelIdByStep(step));
+    panel.classList.toggle('is-current', step === getVisibleStep());
+  });
+}
+
+function updateSummary() {
+  const serviceMeta = getServiceMeta(serviceField.value);
+  const selectedBarber = normalizeBarberSelection(barberField.value);
+  const barberOption = [...barberField.options].find((option) => option.value === barberField.value);
+
+  summaryService.textContent = serviceField.value ? `${serviceMeta.title} · ${serviceMeta.duration}` : 'Choose a service';
+  summaryBarber.textContent = !barberField.value
+    ? 'Select a barber'
+    : selectedBarber === 'no-preference'
+      ? 'No preference'
+      : barberOption?.textContent || 'Selected barber';
+  summaryDate.textContent = dateField.value ? formatHumanDate(dateField.value) : 'Pick a date';
+  summaryTime.textContent = timeField.value ? formatTimeDisplay(timeField.value) : 'Choose a slot';
+  summaryTotal.textContent = serviceField.value ? serviceMeta.priceLabel : 'free';
+
+  const isReadyToSubmit = ['firstName', 'lastName', 'email', 'phone'].every((fieldName) => (
+    String(bookingForm.elements[fieldName].value || '').trim()
+  )) && serviceField.value && barberField.value && dateField.value && timeField.value;
+
+  bookingContinue.textContent = isReadyToSubmit ? 'Confirm request' : 'Continue';
+  bookingContinue.classList.toggle('is-ready', isReadyToSubmit);
+  renderFlowState();
+  renderVisibleStep();
+}
+
+function renderServiceCards() {
+  const options = [...serviceField.options].filter((option) => option.value);
+
+  serviceSelectionList.innerHTML = options.map((option) => {
+    const meta = getServiceMeta(option.value);
+    const isSelected = option.value === serviceField.value;
+
+    return `
+      <button class="service-card ${isSelected ? 'is-selected' : ''}" type="button" data-service-value="${option.value}">
+        <div class="service-card-main">
+          <div class="service-icon">${meta.icon}</div>
+          <div>
+            <div class="service-card-title">${meta.title}</div>
+            <div class="service-card-meta">${meta.duration} · Premium barbering service</div>
+            <div class="service-card-meta">${meta.description}</div>
+            <div class="service-card-price">${meta.priceLabel}</div>
+          </div>
+        </div>
+        <span class="service-card-action">${isSelected ? 'Selected' : 'Select'}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderBarberCards(barbers) {
+  if (!serviceField.value) {
+    professionalSelectionList.innerHTML = `
+      <div class="booking-empty-state">
+        <strong>Select a service first</strong>
+        <p>The professional list appears after you choose which appointment you want to book.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const cards = [
+    {
+      id: 'no-preference',
+      name: 'No preference',
+      role: 'For maximum availability',
+      description: 'The system will match you with the first barber who can confirm that slot.',
+      image: '',
+      initials: 'NP'
+    },
+    ...barbers.map((barber) => {
+      const profile = getBarberProfile(barber);
+      return {
+        id: barber.id,
+        name: barber.name,
+        role: profile.role,
+        description: barber.bio || 'Premium grooming specialist.',
+        image: profile.image,
+        initials: profile.initials
+      };
+    })
+  ];
+
+  professionalSelectionList.innerHTML = cards.map((barber) => {
+    const isSelected = normalizeBarberSelection(barberField.value) === barber.id;
+
+    return `
+      <button class="professional-card ${isSelected ? 'is-selected' : ''}" type="button" data-barber-value="${barber.id}">
+        <div class="professional-card-main">
+          <div class="professional-avatar">
+            ${barber.image ? `<img src="${barber.image}" alt="${barber.name}">` : barber.initials}
+          </div>
+          <div>
+            <div class="professional-card-title">${barber.name}</div>
+            <div class="professional-card-meta">${barber.role}</div>
+            <div class="professional-card-copy">${barber.description}</div>
+          </div>
+        </div>
+        <span class="professional-card-action">${isSelected ? 'Selected' : 'Select'}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderDatePills(dates) {
+  if (!serviceField.value) {
+    dateSelectionList.innerHTML = '';
+    return;
+  }
+
+  if (!dates.length) {
+    dateSelectionList.innerHTML = '';
+    return;
+  }
+
+  dateSelectionList.innerHTML = dates.map((dateString) => {
+    const date = new Date(`${dateString}T12:00:00`);
+    const isSelected = dateString === dateField.value;
+
+    return `
+      <button class="date-pill ${isSelected ? 'is-selected' : ''}" type="button" data-date-value="${dateString}">
+        <strong>${date.getDate()}</strong>
+        <span>${date.toLocaleDateString('en-GB', { weekday: 'short' })}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function renderTimeCards(times) {
+  if (!serviceField.value || !barberField.value) {
+    timeSelectionList.innerHTML = `
+      <div class="booking-empty-state">
+        <strong>Choose a professional first</strong>
+        <p>Time slots will appear after you pick the service and the barber.</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (!dateField.value) {
+    timeSelectionList.innerHTML = `
+      <div class="booking-empty-state">
+        <strong>Select a date</strong>
+        <p>The next open time slots appear once a date has been chosen.</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (!times.length) {
+    timeSelectionList.innerHTML = `
+      <div class="booking-empty-state">
+        <strong>Fully booked on this date</strong>
+        <p>No times remain for ${formatHumanDate(dateField.value)}. Try the next available date.</p>
+      </div>
+    `;
+    return;
+  }
+
+  timeSelectionList.innerHTML = times.map((timeValue) => {
+    const isSelected = timeValue === timeField.value;
+    return `
+      <button class="time-card ${isSelected ? 'is-selected' : ''}" type="button" data-time-value="${timeValue}">
+        <div>
+          <strong>${formatTimeDisplay(timeValue)}</strong>
+          <small>${usingFallbackAvailability ? 'Preview slot' : 'Available to request now'}</small>
+        </div>
+        <span class="time-card-action">${isSelected ? 'Selected' : 'Choose'}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function scrollToBookingSection(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function fetchBarbersFromApi(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+  const payload = await response.json();
+  return Array.isArray(payload.barbers) ? payload.barbers : [];
+}
+
+async function fetchAllBarbers() {
+  if (window.location.protocol === 'file:') {
+    usingFallbackAvailability = true;
+    return fallbackBarbers;
+  }
+
+  try {
+    const barbers = await fetchBarbersFromApi('/api/barbers');
+    usingFallbackAvailability = false;
+    return barbers;
+  } catch (error) {
+    usingFallbackAvailability = true;
+    return fallbackBarbers;
+  }
+}
+
+function isFallbackBarberAvailable(barber, service, date, time) {
+  const availability = barber.availability || {};
+  const workDays = Array.isArray(availability.workDays) ? availability.workDays : [];
+  const blockedSlots = Array.isArray(availability.blockedSlots) ? availability.blockedSlots : [];
+  const weekday = getWeekday(date);
+
+  if (!barber.supportedServices.includes(service)) return false;
+  if (weekday === null || !workDays.includes(weekday)) return false;
+
+  return !blockedSlots.some((slot) => {
+    const sameDate = !slot.date || slot.date === date;
+    const sameTime = !slot.time || slot.time === time;
+    const sameService = !slot.service || slot.service === service;
+    return sameDate && sameTime && sameService;
+  });
+}
+
+function getFallbackAvailableBarbers(service, date, time) {
+  return fallbackBarbers.filter((barber) => isFallbackBarberAvailable(barber, service, date, time));
+}
+
+function getFallbackTargetBarbers(service, barberId) {
+  const normalizedBarberId = normalizeBarberSelection(barberId);
+  const serviceBarbers = fallbackBarbers.filter((barber) => !service || barber.supportedServices.includes(service));
+  return normalizedBarberId === 'no-preference'
+    ? serviceBarbers
+    : serviceBarbers.filter((barber) => barber.id === normalizedBarberId);
+}
+
+function getFallbackAvailableDates(service, barberId, days = 21) {
+  const targetBarbers = getFallbackTargetBarbers(service, barberId);
+  const startDate = new Date();
+  startDate.setHours(12, 0, 0, 0);
+  const dates = [];
+
+  for (let index = 0; index < days; index += 1) {
+    const currentDate = addDays(startDate, index);
+    const dateString = formatDate(currentDate);
+    const hasAvailability = TIME_OPTIONS.some((time) => targetBarbers.some((barber) => (
+      isFallbackBarberAvailable(barber, service, dateString, time)
+    )));
+
+    if (hasAvailability) {
+      dates.push(dateString);
+    }
+  }
+
+  return dates;
+}
+
+function getFallbackAvailableTimes(service, barberId, date) {
+  const targetBarbers = getFallbackTargetBarbers(service, barberId);
+  return TIME_OPTIONS.filter((time) => targetBarbers.some((barber) => (
+    isFallbackBarberAvailable(barber, service, date, time)
+  )));
+}
+
+async function fetchBookingOptions(service, barberId, date = '') {
+  if (window.location.protocol === 'file:') {
+    usingFallbackAvailability = true;
+    return {
+      availableDates: getFallbackAvailableDates(service, barberId),
+      availableTimes: date ? getFallbackAvailableTimes(service, barberId, date) : []
+    };
+  }
+
+  try {
+    const searchParams = new URLSearchParams({
+      service,
+      barberId: normalizeBarberSelection(barberId),
+      days: '21'
+    });
+
+    if (date) {
+      searchParams.set('date', date);
+    }
+
+    const response = await fetch(`/api/booking/options?${searchParams.toString()}`);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const payload = await response.json();
+    usingFallbackAvailability = false;
+    return {
+      availableDates: Array.isArray(payload.availableDates) ? payload.availableDates : [],
+      availableTimes: Array.isArray(payload.availableTimes) ? payload.availableTimes : []
+    };
+  } catch (error) {
+    usingFallbackAvailability = true;
+    return {
+      availableDates: getFallbackAvailableDates(service, barberId),
+      availableTimes: date ? getFallbackAvailableTimes(service, barberId, date) : []
+    };
+  }
+}
+
+async function fetchAvailableBarbers(service, date, time) {
+  if (window.location.protocol === 'file:') {
+    usingFallbackAvailability = true;
+    return getFallbackAvailableBarbers(service, date, time);
+  }
+
+  try {
+    const searchParams = new URLSearchParams({ service, date, time });
+    const barbers = await fetchBarbersFromApi(`/api/barbers/availability?${searchParams.toString()}`);
+    usingFallbackAvailability = false;
+    return barbers;
+  } catch (error) {
+    usingFallbackAvailability = true;
+    return getFallbackAvailableBarbers(service, date, time);
+  }
+}
+
+async function updateAvailabilityMessage() {
+  const selectedService = serviceField.value;
+  const selectedBarber = normalizeBarberSelection(barberField.value);
+  const selectedDate = dateField.value;
+  const selectedTime = timeField.value;
+
+  barberAvailability.className = 'field-note';
+
+  if (!selectedService) {
+    barberAvailability.textContent = 'Choose a service first to unlock the professional list.';
+    return;
+  }
+
+  if (!selectedDate) {
+    barberAvailability.textContent = selectedBarber === 'no-preference'
+      ? 'No preference keeps the broadest availability window.'
+      : 'Pick a date to see if that barber still has open time slots.';
+    return;
+  }
+
+  if (!selectedTime) {
+    barberAvailability.textContent = 'Choose one of the live time slots to finish the request.';
+    return;
+  }
+
+  const availableBarbers = await fetchAvailableBarbers(selectedService, selectedDate, selectedTime);
+
+  if (!availableBarbers.length) {
+    barberAvailability.textContent = 'That slot is no longer available. Try a different date or time.';
+    return;
+  }
+
+  if (selectedBarber !== 'no-preference') {
+    const chosenBarber = availableBarbers.find((barber) => barber.id === selectedBarber);
+    if (!chosenBarber) {
+      barberAvailability.textContent = 'That barber is no longer free at this time.';
+      return;
+    }
+
+    barberAvailability.textContent = `${chosenBarber.name} can receive this request. The slot is locked after confirmation.`;
+    barberAvailability.classList.add('strong');
+    return;
+  }
+
+  barberAvailability.textContent = usingFallbackAvailability
+    ? `${availableBarbers.map((barber) => barber.name).join(', ')} available in preview mode.`
+    : `${availableBarbers.map((barber) => barber.name).join(', ')} can take this slot.`;
+  barberAvailability.classList.add('strong');
+}
+
+async function updateBookingOptions() {
+  const allBarbers = await fetchAllBarbers();
+  const selectedService = serviceField.value;
+  cachedBookingBarbers = selectedService
+    ? allBarbers.filter((barber) => barber.supportedServices.includes(selectedService))
+    : allBarbers;
+
+  setBarberOptions(cachedBookingBarbers);
+  renderServiceCards();
+  renderBarberCards(cachedBookingBarbers);
+
+  if (!selectedService) {
+    cachedAvailableDates = [];
+    cachedAvailableTimes = [];
+    setSelectOptions(dateField, [], 'Choose a service first...');
+    setSelectOptions(timeField, [], 'Choose an available date first...');
+    dateAvailability.textContent = 'Pick a service and barber to load the next available dates.';
+    timeAvailability.textContent = 'Available times will update after you choose a date.';
+    renderDatePills(cachedAvailableDates);
+    renderTimeCards(cachedAvailableTimes);
+    updateSummary();
+    await updateAvailabilityMessage();
+    return;
+  }
+
+  const selectedBarber = normalizeBarberSelection(barberField.value);
+  const options = await fetchBookingOptions(selectedService, selectedBarber, dateField.value);
+  cachedAvailableDates = options.availableDates;
+
+  setSelectOptions(
+    dateField,
+    options.availableDates.map((date) => ({ value: date, label: formatHumanDate(date) })),
+    'Choose an available date...',
+    dateField.value
+  );
+  renderDatePills(cachedAvailableDates);
+
+  if (!options.availableDates.length) {
+    cachedAvailableTimes = [];
+    setSelectOptions(timeField, [], 'No available times for this barber...');
+    dateAvailability.textContent = 'No available dates were found in the next 21 days.';
+    timeAvailability.textContent = 'Try another barber or service.';
+    renderTimeCards(cachedAvailableTimes);
+    updateSummary();
+    await updateAvailabilityMessage();
+    return;
+  }
+
+  dateAvailability.textContent = usingFallbackAvailability
+    ? `Showing ${options.availableDates.length} available dates in preview mode.`
+    : `${options.availableDates.length} available dates found in the next 21 days.`;
+
+  const selectedDate = dateField.value;
+  if (!selectedDate) {
+    cachedAvailableTimes = [];
+    setSelectOptions(timeField, [], 'Choose an available date first...');
+    timeAvailability.textContent = 'Choose a date to load the open time slots.';
+    renderTimeCards(cachedAvailableTimes);
+    updateSummary();
+    await updateAvailabilityMessage();
+    return;
+  }
+
+  cachedAvailableTimes = options.availableTimes;
+  setSelectOptions(
+    timeField,
+    options.availableTimes.map((time) => ({ value: time, label: time })),
+    'Choose an available time...',
+    timeField.value
+  );
+
+  timeAvailability.textContent = options.availableTimes.length
+    ? `${options.availableTimes.length} times available for ${formatHumanDate(selectedDate)}.`
+    : 'That date has no remaining times. Jump to the next available opening.';
+
+  renderTimeCards(cachedAvailableTimes);
+  updateSummary();
+  await updateAvailabilityMessage();
+}
+
+serviceSelectionList.addEventListener('click', async (event) => {
+  const serviceCard = event.target.closest('[data-service-value]');
+  if (!serviceCard) return;
+
+  serviceField.value = serviceCard.dataset.serviceValue;
+  dateField.value = '';
+  timeField.value = '';
+  focusedBookingStep = 'professional';
+  setFormStatus('');
+  await updateBookingOptions();
+  scrollToBookingSection('bookingProfessionalPanel');
+});
+
+professionalSelectionList.addEventListener('click', async (event) => {
+  const professionalCard = event.target.closest('[data-barber-value]');
+  if (!professionalCard) return;
+
+  barberField.value = professionalCard.dataset.barberValue;
+  dateField.value = '';
+  timeField.value = '';
+  focusedBookingStep = 'time';
+  setFormStatus('');
+  await updateBookingOptions();
+  scrollToBookingSection('bookingTimePanel');
+});
+
+dateSelectionList.addEventListener('click', async (event) => {
+  const dateButton = event.target.closest('[data-date-value]');
+  if (!dateButton) return;
+
+  dateField.value = dateButton.dataset.dateValue;
+  timeField.value = '';
+  focusedBookingStep = 'time';
+  setFormStatus('');
+  await updateBookingOptions();
+});
+
+timeSelectionList.addEventListener('click', async (event) => {
+  const timeButton = event.target.closest('[data-time-value]');
+  if (!timeButton) return;
+
+  timeField.value = timeButton.dataset.timeValue;
+  focusedBookingStep = 'confirm';
+  renderTimeCards(cachedAvailableTimes);
+  updateSummary();
+  await updateAvailabilityMessage();
+  scrollToBookingSection('bookingConfirmPanel');
+});
+
+jumpNextDateBtn.addEventListener('click', async () => {
+  const nextDate = cachedAvailableDates.find((date) => date !== dateField.value);
+  if (!nextDate) return;
+
+  dateField.value = nextDate;
+  timeField.value = '';
+  focusedBookingStep = 'time';
+  await updateBookingOptions();
+});
+
+document.getElementById('bookingFlow').addEventListener('click', (event) => {
+  const requestedStep = event.target.closest('.flow-step')?.dataset.stepLabel;
+  if (!requestedStep) return;
+
+  const stepOrder = getStepOrder();
+  const activeIndex = stepOrder.indexOf(getStepState());
+  const requestedIndex = stepOrder.indexOf(requestedStep);
+
+  if (requestedIndex === -1 || requestedIndex > activeIndex) return;
+
+  focusedBookingStep = requestedStep;
+  renderFlowState();
+  renderVisibleStep();
+  scrollToBookingSection(getPanelIdByStep(requestedStep));
+});
+
+bookingContinue.addEventListener('click', () => {
+  if (!serviceField.value) {
+    focusedBookingStep = 'service';
+    renderVisibleStep();
+    scrollToBookingSection('bookingServicesPanel');
+    return;
+  }
+  if (!barberField.value) {
+    focusedBookingStep = 'professional';
+    renderVisibleStep();
+    scrollToBookingSection('bookingProfessionalPanel');
+    return;
+  }
+  if (!dateField.value || !timeField.value) {
+    focusedBookingStep = 'time';
+    renderVisibleStep();
+    scrollToBookingSection('bookingTimePanel');
+    return;
+  }
+
+  const confirmFields = [firstNameField, lastNameField, emailField, phoneField];
+  const missingContactField = confirmFields.find((field) => !String(field.value || '').trim());
+  if (missingContactField) {
+    focusedBookingStep = 'confirm';
+    renderVisibleStep();
+    scrollToBookingSection('bookingConfirmPanel');
+    missingContactField.focus();
+    return;
+  }
+
+  bookingForm.requestSubmit();
+});
+
+[firstNameField, lastNameField, emailField, phoneField].forEach((field) => {
+  field.addEventListener('input', updateSummary);
+});
+
+serviceField.addEventListener('change', updateBookingOptions);
+barberField.addEventListener('change', updateBookingOptions);
+dateField.addEventListener('change', updateBookingOptions);
+timeField.addEventListener('change', async () => {
+  updateSummary();
+  await updateAvailabilityMessage();
+});
+
+currentYear.textContent = new Date().getFullYear();
+renderServiceCards();
+updateSummary();
+updateBookingOptions();
+
+bookingForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const formData = new FormData(bookingForm);
+  const values = Object.fromEntries(formData.entries());
+  const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'service', 'barber', 'date', 'time'];
+  const missingField = requiredFields.find((field) => !String(values[field] || '').trim());
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(values.email || '').trim());
+  const availableBarbers = await fetchAvailableBarbers(values.service, values.date, values.time);
+  const selectedBarber = normalizeBarberSelection(values.barber);
+
+  setFormStatus('');
+
+  if (missingField) {
+    setFormStatus('Complete every required field before sending the booking request.', 'error');
+    bookingForm.querySelector(`[name="${missingField}"]`).focus();
+    return;
+  }
+
+  if (!emailValid) {
+    setFormStatus('Please enter a valid email address.', 'error');
+    emailField.focus();
+    return;
+  }
+
+  if (selectedBarber !== 'no-preference' && !availableBarbers.some((barber) => barber.id === selectedBarber)) {
+    setFormStatus('That barber is no longer available for the selected date and time.', 'error');
+    scrollToBookingSection('bookingProfessionalPanel');
+    await updateBookingOptions();
+    return;
+  }
+
+  if (!availableBarbers.length) {
+    setFormStatus('That slot is no longer available. Please choose a different date or time.', 'error');
+    scrollToBookingSection('bookingTimePanel');
+    await updateBookingOptions();
+    return;
+  }
+
+  if (window.location.protocol === 'file:') {
+    setFormStatus('Open the site through the local backend to send a real booking request to the barber portal.', 'success');
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/bookings', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        phone: values.phone,
+        service: values.service,
+        barberId: selectedBarber,
+        date: values.date,
+        time: values.time,
+        notes: values.notes
+      })
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || 'Unable to create booking request.');
+    }
+
+    setFormStatus(`Request sent to ${result.reservation.barberName}. The appointment is locked after barber confirmation.`, 'success');
+    bookingForm.reset();
+    focusedBookingStep = 'service';
+    renderServiceCards();
+    updateSummary();
+    await updateBookingOptions();
+    scrollToBookingSection('bookingServicesPanel');
+  } catch (error) {
+    setFormStatus(error.message, 'error');
+  }
+});
 </script>
 </body>
 </html>
