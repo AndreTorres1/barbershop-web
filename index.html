@@ -22,7 +22,15 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--cream); overflow-x: hidden; cursor: none; }
+body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--cream); overflow-x: hidden; cursor: default; }
+body.custom-cursor { cursor: none; }
+#main-content,
+#services,
+#experience,
+#team,
+#booking {
+  scroll-margin-top: 120px;
+}
 
 .skip-link {
   position: absolute;
@@ -42,8 +50,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* Custom cursor */
-.cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.15s ease; transform: translate(-50%, -50%); }
-.cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(184,149,58,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transition: all 0.25s ease; transform: translate(-50%, -50%); }
+.cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transition: transform 0.15s ease, opacity 0.2s ease; transform: translate(-50%, -50%); opacity: 0; }
+.cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(184,149,58,0.5); border-radius: 50%; pointer-events: none; z-index: 9998; transition: all 0.25s ease, opacity 0.2s ease; transform: translate(-50%, -50%); opacity: 0; }
+body.custom-cursor .cursor,
+body.custom-cursor .cursor-ring { opacity: 1; }
 
 /* NAV */
 nav {
@@ -296,6 +306,7 @@ nav.scrolled { background: rgba(12,10,6,0.97); backdrop-filter: blur(20px); padd
 .form-status { min-height: 1.2rem; font-size: 0.82rem; color: var(--gold-light); }
 .form-status.error { color: #ff9b8f; }
 .form-status.success { color: #bde7ba; }
+.form-status.info { color: #5f5548; }
 .submit-btn {
   background: var(--gold); color: var(--dark); border: none; padding: 1.2rem;
   font-family: 'DM Sans', sans-serif; font-size: 0.75rem; letter-spacing: 3px; text-transform: uppercase;
@@ -331,6 +342,27 @@ nav.scrolled { background: rgba(12,10,6,0.97); backdrop-filter: blur(20px); padd
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 2rem;
+}
+.booking-topbar-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+.booking-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(42,34,24,0.12);
+  background: rgba(255,255,255,0.74);
+  color: #1e1812;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.booking-back[hidden] {
+  display: none;
 }
 .booking-kicker {
   font-size: 0.72rem;
@@ -1053,7 +1085,7 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
     <li><a href="#team">Barbers</a></li>
     <li><a href="#experience">Experience</a></li>
     <li><a href="#booking">Booking</a></li>
-    <li><a href="#booking" class="nav-cta">Book Now</a></li>
+    <li><a href="#book-now" class="nav-cta">Book Now</a></li>
   </ul>
 </nav>
 
@@ -1067,7 +1099,7 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
     <h1>Where Every<br>Cut is <em>Art</em></h1>
     <p class="hero-desc">We blend old-school craft with modern precision. Each visit is a ritual — not just a haircut. Because you deserve more than a trim.</p>
     <div class="hero-actions">
-      <a href="#booking" class="btn-primary"><span>Book Your Seat</span></a>
+      <a href="#book-now" class="btn-primary"><span>Book Your Seat</span></a>
       <a href="#services" class="btn-ghost">
         <div class="btn-ghost-arrow">→</div>
         Our Services
@@ -1292,7 +1324,7 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
   </div>
 </div>
 
-<section class="testimonials">
+<section class="testimonials" id="testimonials">
   <div class="testimonials-header reveal">
     <div class="section-label-block">
       <div class="section-label-line"></div>
@@ -1339,14 +1371,16 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
 
 <section class="booking" id="booking">
   <div class="booking-shell">
-    <form class="booking-app reveal" id="bookingForm" novalidate>
-      <div class="booking-topbar">
-        <div>
-          <div class="booking-kicker">Book online</div>
-          <h2 class="booking-title">Reserve your chair</h2>
-          <p class="booking-copy">Choose the service, select a barber, and request one of the live available slots.</p>
+    <form class="booking-app reveal" id="bookingForm" novalidate autocomplete="off">
+        <div class="booking-topbar">
+        <div class="booking-topbar-main">
+          <button class="booking-back" id="bookingBackBtn" type="button" aria-label="Go back" hidden>←</button>
+          <div>
+            <div class="booking-kicker">Book online</div>
+            <h2 class="booking-title">Reserve your chair</h2>
+            <p class="booking-copy">Choose the service, select a barber, and request one of the live available slots.</p>
+          </div>
         </div>
-        <div class="booking-mini-note">Average setup time: under 1 minute</div>
       </div>
 
       <div class="booking-flow" id="bookingFlow">
@@ -1440,7 +1474,6 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
               <div class="booking-panel-label">Step 4</div>
               <h4>Confirm your details</h4>
             </div>
-            <div class="booking-panel-tag">We only need the essentials</div>
           </div>
           <div class="booking-contact-grid">
             <div class="field">
@@ -1536,14 +1569,14 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
       <ul>
         <li><a href="#experience">Our Experience</a></li>
         <li><a href="#team">The Team</a></li>
-        <li><a href="#booking">Book Online</a></li>
-        <li><a href="#booking">Visit Us</a></li>
+        <li><a href="#booking">Booking</a></li>
+        <li><a href="#testimonials">Client Reviews</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <span class="footer-col-title">Contact</span>
       <ul>
-        <li><a href="#booking">Book Online</a></li>
+        <li><a href="#book-now">Book online</a></li>
         <li><a href="tel:+351222111000">+351 222 111 000</a></li>
         <li><a href="mailto:hello@thesharpcut.pt">hello@thesharpcut.pt</a></li>
         <li><a href="https://maps.google.com/?q=Rua+de+Santa+Catarina+210,+Porto" target="_blank" rel="noreferrer">Porto, Portugal</a></li>
@@ -1553,7 +1586,7 @@ footer { background: var(--dark); border-top: 1px solid var(--border); }
   <div class="footer-bottom">
     <span class="footer-bottom-text">© <span id="currentYear">2024</span> The Sharp Cut Barbershop. All rights reserved.</span>
     <div class="footer-social">
-      <a href="#booking" class="social-link" aria-label="Book online">BK</a>
+      <a href="#book-now" class="social-link" aria-label="Open the booking flow">BK</a>
       <a href="tel:+351222111000" class="social-link" aria-label="Call the barbershop">PH</a>
       <a href="mailto:hello@thesharpcut.pt" class="social-link" aria-label="Email the barbershop">EM</a>
     </div>
@@ -1567,6 +1600,7 @@ const ring = document.getElementById('cursorRing');
 const prefersFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
 if (prefersFinePointer) {
+  document.body.classList.add('custom-cursor');
   document.addEventListener('mousemove', e => {
     cursor.style.left = e.clientX + 'px';
     cursor.style.top = e.clientY + 'px';
@@ -1578,6 +1612,17 @@ if (prefersFinePointer) {
   document.querySelectorAll('a, button, .service-item, .barber-card').forEach(el => {
     el.addEventListener('mouseenter', () => { cursor.style.transform = 'translate(-50%,-50%) scale(2.5)'; ring.style.transform = 'translate(-50%,-50%) scale(1.4)'; ring.style.borderColor = 'rgba(184,149,58,0.8)'; });
     el.addEventListener('mouseleave', () => { cursor.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.transform = 'translate(-50%,-50%) scale(1)'; ring.style.borderColor = 'rgba(184,149,58,0.5)'; });
+  });
+
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.opacity = '0';
+      ring.style.opacity = '0';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.opacity = '';
+      ring.style.opacity = '';
+    });
   });
 }
 
@@ -1608,6 +1653,7 @@ const observer = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
 const bookingForm = document.getElementById('bookingForm');
+const bookingSection = document.getElementById('booking');
 const formStatus = document.getElementById('formStatus');
 const serviceField = document.getElementById('service');
 const barberField = document.getElementById('barber');
@@ -1622,6 +1668,7 @@ const professionalSelectionList = document.getElementById('professionalSelection
 const dateSelectionList = document.getElementById('dateSelectionList');
 const timeSelectionList = document.getElementById('timeSelectionList');
 const bookingContinue = document.getElementById('bookingContinue');
+const bookingBackBtn = document.getElementById('bookingBackBtn');
 const jumpNextDateBtn = document.getElementById('jumpNextDateBtn');
 const bookingFlowSteps = [...document.querySelectorAll('.flow-step')];
 const summaryService = document.getElementById('summaryService');
@@ -1634,6 +1681,12 @@ const lastNameField = document.getElementById('lastName');
 const emailField = document.getElementById('email');
 const phoneField = document.getElementById('phone');
 const TIME_OPTIONS = ['09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+
+if (currentYear) {
+  currentYear.textContent = new Date().getFullYear();
+}
+
+if (bookingForm && bookingSection && !bookingSection.hidden) {
 
 const serviceCatalog = {
   'Classic Haircut — €22': {
@@ -1842,6 +1895,13 @@ function getVisibleStep() {
   return focusedBookingStep;
 }
 
+function goToStep(step) {
+  focusedBookingStep = step;
+  renderFlowState();
+  renderVisibleStep();
+  scrollToBookingSection(getPanelIdByStep(step));
+}
+
 function setSelectOptions(field, options, placeholder, selectedValue = field.value) {
   field.innerHTML = '';
 
@@ -1895,10 +1955,14 @@ function renderFlowState() {
 }
 
 function renderVisibleStep() {
+  const visibleStep = getVisibleStep();
   ['service', 'professional', 'time', 'confirm'].forEach((step) => {
     const panel = document.getElementById(getPanelIdByStep(step));
-    panel.classList.toggle('is-current', step === getVisibleStep());
+    panel.classList.toggle('is-current', step === visibleStep);
   });
+  if (bookingBackBtn) {
+    bookingBackBtn.hidden = visibleStep === 'service';
+  }
 }
 
 function updateSummary() {
@@ -2077,6 +2141,10 @@ function scrollToBookingSection(panelId) {
   const panel = document.getElementById(panelId);
   if (!panel) return;
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function openBookingJourney(step = 'service') {
+  goToStep(step);
 }
 
 async function fetchBarbersFromApi(url) {
@@ -2398,13 +2466,23 @@ timeSelectionList.addEventListener('click', async (event) => {
 });
 
 jumpNextDateBtn.addEventListener('click', async () => {
-  const nextDate = cachedAvailableDates.find((date) => date !== dateField.value);
+  const currentIndex = cachedAvailableDates.indexOf(dateField.value);
+  const nextDate = currentIndex >= 0
+    ? cachedAvailableDates[currentIndex + 1]
+    : cachedAvailableDates.find((date) => date > dateField.value) || cachedAvailableDates[0];
   if (!nextDate) return;
 
   dateField.value = nextDate;
   timeField.value = '';
   focusedBookingStep = 'time';
   await updateBookingOptions();
+});
+
+bookingBackBtn.addEventListener('click', () => {
+  const stepOrder = getStepOrder();
+  const visibleIndex = stepOrder.indexOf(getVisibleStep());
+  const previousStep = stepOrder[Math.max(0, visibleIndex - 1)];
+  goToStep(previousStep);
 });
 
 document.getElementById('bookingFlow').addEventListener('click', (event) => {
@@ -2456,6 +2534,14 @@ bookingContinue.addEventListener('click', () => {
   bookingForm.requestSubmit();
 });
 
+document.querySelectorAll('a[href="#book-now"]').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+    openBookingJourney('service');
+    history.replaceState(null, '', '#book-now');
+  });
+});
+
 [firstNameField, lastNameField, emailField, phoneField].forEach((field) => {
   field.addEventListener('input', updateSummary);
 });
@@ -2468,10 +2554,18 @@ timeField.addEventListener('change', async () => {
   await updateAvailabilityMessage();
 });
 
-currentYear.textContent = new Date().getFullYear();
+bookingForm.reset();
+focusedBookingStep = 'service';
+setFormStatus('', '');
 renderServiceCards();
 updateSummary();
 updateBookingOptions();
+
+if (window.location.hash === '#book-now' || window.location.hash === '#booking') {
+  window.addEventListener('load', () => {
+    openBookingJourney('service');
+  }, { once: true });
+}
 
 bookingForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -2513,7 +2607,7 @@ bookingForm.addEventListener('submit', async (event) => {
   }
 
   if (window.location.protocol === 'file:') {
-    setFormStatus('Open the site through the local backend to send a real booking request to the barber portal.', 'success');
+    setFormStatus('Open the site through the local backend to send a real booking request to the barber portal.', 'info');
     return;
   }
 
@@ -2552,6 +2646,7 @@ bookingForm.addEventListener('submit', async (event) => {
     setFormStatus(error.message, 'error');
   }
 });
+}
 </script>
 </body>
 </html>
