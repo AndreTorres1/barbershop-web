@@ -825,9 +825,40 @@
                 </div>
                 <div class="field-row">
                   <div class="field">
+                    <label for="adminDayStart">Day Start</label>
+                    <input id="adminDayStart" name="dayStart" type="time" value="09:00">
+                  </div>
+                  <div class="field">
+                    <label for="adminDayEnd">Day End</label>
+                    <input id="adminDayEnd" name="dayEnd" type="time" value="19:00">
+                  </div>
+                </div>
+                <div class="field-row" style="margin-top:0.9rem;">
+                  <div class="field">
+                    <label for="adminBreakStart">Break Start</label>
+                    <input id="adminBreakStart" name="breakStart" type="time" value="12:00">
+                  </div>
+                  <div class="field">
+                    <label for="adminBreakEnd">Break End</label>
+                    <input id="adminBreakEnd" name="breakEnd" type="time" value="14:00">
+                  </div>
+                </div>
+                <div class="field-row" style="margin-top:0.9rem;">
+                  <div class="field">
+                    <label for="adminSlotIntervalMinutes">Slot Interval</label>
+                    <select id="adminSlotIntervalMinutes" name="slotIntervalMinutes">
+                      <option value="15">15 minutes</option>
+                      <option value="30" selected>30 minutes</option>
+                      <option value="45">45 minutes</option>
+                      <option value="60">60 minutes</option>
+                    </select>
+                  </div>
+                  <div class="field">
                     <label for="adminBlockedTimes">Blocked Times</label>
                     <input id="adminBlockedTimes" name="blockedTimes" type="text" placeholder="11:00, 14:30">
                   </div>
+                </div>
+                <div class="field-row" style="margin-top:0.9rem;">
                   <div class="field">
                     <label for="adminBlockedDates">Blocked Dates</label>
                     <input id="adminBlockedDates" name="blockedDates" type="text" placeholder="2026-05-01, 2026-05-08">
@@ -999,6 +1030,11 @@ const adminAccessCodeField = document.getElementById('adminAccessCode');
 const adminPhoneNumberField = document.getElementById('adminPhoneNumber');
 const adminBlockedTimesField = document.getElementById('adminBlockedTimes');
 const adminBlockedDatesField = document.getElementById('adminBlockedDates');
+const adminDayStartField = document.getElementById('adminDayStart');
+const adminDayEndField = document.getElementById('adminDayEnd');
+const adminBreakStartField = document.getElementById('adminBreakStart');
+const adminBreakEndField = document.getElementById('adminBreakEnd');
+const adminSlotIntervalField = document.getElementById('adminSlotIntervalMinutes');
 const adminBioField = document.getElementById('adminBio');
 const adminModeField = document.getElementById('adminMode');
 const adminStatus = document.getElementById('adminStatus');
@@ -1108,6 +1144,56 @@ function validatePhoneNumber(phoneNumber) {
   return /^\+?[0-9]{9,15}$/.test(phoneNumber.replace(/\s+/g, ''));
 }
 
+function validateScheduleSettings(availability) {
+  const toMinutes = (timeValue) => {
+    const [hours, minutes] = String(timeValue || '').split(':').map(Number);
+    if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
+    return (hours * 60) + minutes;
+  };
+
+  const dayStartMinutes = toMinutes(availability.dayStart);
+  const dayEndMinutes = toMinutes(availability.dayEnd);
+  const breakStartMinutes = toMinutes(availability.breakStart);
+  const breakEndMinutes = toMinutes(availability.breakEnd);
+  const slotIntervalMinutes = Number(availability.slotIntervalMinutes);
+
+  if (dayStartMinutes === null || dayEndMinutes === null || dayEndMinutes <= dayStartMinutes) {
+    return 'Availability must include valid day start and end times.';
+  }
+
+  if (!Number.isInteger(slotIntervalMinutes) || slotIntervalMinutes < 15 || slotIntervalMinutes > 120) {
+    return 'Slot interval must be between 15 and 120 minutes.';
+  }
+
+  if (
+    breakStartMinutes === null
+    || breakEndMinutes === null
+    || breakEndMinutes <= breakStartMinutes
+    || breakStartMinutes <= dayStartMinutes
+    || breakEndMinutes >= dayEndMinutes
+  ) {
+    return 'Break start and end must sit inside the working day.';
+  }
+
+  return null;
+}
+
+function applyScheduleDefaults(availability = {}) {
+  adminDayStartField.value = availability.dayStart || '09:00';
+  adminDayEndField.value = availability.dayEnd || '19:00';
+  adminBreakStartField.value = availability.breakStart || '12:00';
+  adminBreakEndField.value = availability.breakEnd || '14:00';
+  adminSlotIntervalField.value = String(availability.slotIntervalMinutes || 30);
+}
+
+function formatAvailabilitySummary(availability = {}) {
+  const workDaysCount = Array.isArray(availability.workDays) ? availability.workDays.length : 0;
+  const dayStart = availability.dayStart || '09:00';
+  const dayEnd = availability.dayEnd || '19:00';
+  const slotInterval = availability.slotIntervalMinutes || 30;
+  return `${workDaysCount} days · ${dayStart}-${dayEnd} · ${slotInterval}m`;
+}
+
 function buildBarberPayload() {
   const blockedSlots = parseBlockedSlots();
 
@@ -1121,7 +1207,12 @@ function buildBarberPayload() {
     supportedServices: [...adminForm.querySelectorAll('input[name="supportedServices"]:checked')].map((input) => input.value),
     availability: {
       workDays: [...adminForm.querySelectorAll('input[name="workDays"]:checked')].map((input) => Number(input.value)),
-      blockedSlots
+      blockedSlots,
+      dayStart: adminDayStartField.value,
+      dayEnd: adminDayEndField.value,
+      breakStart: adminBreakStartField.value,
+      breakEnd: adminBreakEndField.value,
+      slotIntervalMinutes: Number(adminSlotIntervalField.value)
     }
   };
 }
@@ -1298,6 +1389,7 @@ function resetAdminEditor(message = 'Form reset.') {
   const token = adminTokenField.value;
   adminForm.reset();
   adminTokenField.value = token;
+  applyScheduleDefaults();
   adminModeField.value = 'create';
   editingBarberId = null;
   submitAdminBtn.textContent = 'Save Barber';
@@ -1315,6 +1407,7 @@ function fillAdminForm(barber) {
   adminBioField.value = barber.bio || '';
   adminBlockedTimesField.value = (barber.availability?.blockedSlots || []).filter((slot) => slot.time).map((slot) => slot.time).join(', ');
   adminBlockedDatesField.value = (barber.availability?.blockedSlots || []).filter((slot) => slot.date).map((slot) => slot.date).join(', ');
+  applyScheduleDefaults(barber.availability || {});
 
   adminForm.querySelectorAll('input[name="supportedServices"]').forEach((input) => {
     input.checked = (barber.supportedServices || []).includes(input.value);
@@ -1349,7 +1442,7 @@ function renderBarbers(barbers) {
       <td><span class="status-badge ${barber.status === 'active' ? 'active' : 'deleted'}">${escapeHtml(barber.status)}</span></td>
       <td>${escapeHtml(barber.maskedPhoneNumber || 'No number')}</td>
       <td>${barber.phoneVerified ? '<span class="tiny-badge success">Verified</span>' : '<span class="tiny-badge danger">Pending</span>'}</td>
-      <td>${escapeHtml((barber.availability?.workDays || []).length ? `${barber.availability.workDays.length} days set` : 'Not set')}</td>
+      <td>${escapeHtml(formatAvailabilitySummary(barber.availability || {}))}</td>
       <td>
         <div class="row-actions">
           <button type="button" data-action="edit" data-barber-id="${escapeHtml(barber.id)}">Edit</button>
@@ -1514,6 +1607,12 @@ adminForm.addEventListener('submit', async (event) => {
     return;
   }
 
+  const scheduleError = validateScheduleSettings(payload.availability);
+  if (scheduleError) {
+    setAdminStatus(scheduleError, true);
+    return;
+  }
+
   if (!validatePhoneNumber(payload.phoneNumber)) {
     setAdminStatus('Use a valid mobile number format, for example +351912345678.', true);
     return;
@@ -1621,6 +1720,7 @@ if (savedAdminToken) {
   adminTokenField.value = savedAdminToken;
 }
 
+applyScheduleDefaults();
 updateInvitePreview();
 renderPendingActions();
 renderBarbers([]);

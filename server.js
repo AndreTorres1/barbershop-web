@@ -2,12 +2,14 @@ const http = require('node:http');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
+const { DatabaseSync } = require('node:sqlite');
 const { URL } = require('node:url');
 
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'change-me-admin-token';
 const ROOT_DIR = __dirname;
 const DATA_DIR = path.join(ROOT_DIR, 'data');
+const SQLITE_PATH = path.join(DATA_DIR, 'barbershop.sqlite');
 const BARBERS_PATH = path.join(DATA_DIR, 'barbers.json');
 const RESERVATIONS_PATH = path.join(DATA_DIR, 'reservations.json');
 const NOTIFICATIONS_PATH = path.join(DATA_DIR, 'notifications.json');
@@ -15,9 +17,25 @@ const INDEX_PATH = path.join(ROOT_DIR, 'index.html');
 const ADMIN_PATH = path.join(ROOT_DIR, 'admin.html');
 const BARBER_PAGE_PATH = path.join(ROOT_DIR, 'barber.html');
 const BARBER_ONBOARDING_PATH = path.join(ROOT_DIR, 'barber-onboarding.html');
-const TIME_OPTIONS = ['09:00', '09:30', '10:00', '10:30', '11:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
+const DEFAULT_SLOT_INTERVAL_MINUTES = 30;
+const DEFAULT_DAY_START = '09:00';
+const DEFAULT_DAY_END = '19:00';
+const DEFAULT_BREAK_START = '12:00';
+const DEFAULT_BREAK_END = '14:00';
+const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const BOOKING_WINDOW_DAYS = 21;
 const BARBER_SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 7;
+const SERVICE_DURATIONS = {
+  'Classic Haircut — €22': 45,
+  'Cut and Beard — €35': 60,
+  'Hot Towel Shave — €28': 50,
+  'Beard Sculpting — €18': 30,
+  'Kids Haircut — €15': 30,
+  'VIP Experience — €65': 90
+};
+
+fs.mkdirSync(DATA_DIR, { recursive: true });
 
 function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
@@ -32,11 +50,134 @@ function sendText(response, statusCode, body, contentType = 'text/plain; charset
   response.end(body);
 }
 
-function readBarbers() {
-  const raw = fs.readFileSync(BARBERS_PATH, 'utf-8');
-  return JSON.parse(raw).map((barber) => ({
+function readJsonArray(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return [];
+  }
+
+  try {
+    const raw = fs.readFileSync(filePath, 'utf-8');
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn(`Unable to read JSON seed at ${filePath}: ${error.message}`);
+    return [];
+  }
+}
+
+function isValidTime(value) {
+  return TIME_PATTERN.test(String(value || ''));
+}
+
+function isValidDate(value) {
+  return DATE_PATTERN.test(String(value || ''));
+}
+
+function timeToMinutes(value) {
+  if (!isValidTime(value)) {
+    return null;
+  }
+
+  const [hours, minutes] = String(value).split(':').map(Number);
+  return (hours * 60) + minutes;
+}
+
+function minutesToTime(minutes) {
+  const safeMinutes = Math.max(0, Number(minutes) || 0);
+  const hours = Math.floor(safeMinutes / 60);
+  const remainder = safeMinutes % 60;
+  return `${String(hours).padStart(2, '0')}:${String(remainder).padStart(2, '0')}`;
+}
+
+function normalizeWorkDays(workDays) {
+  const normalized = Array.from(new Set(
+    (Array.isArray(workDays) ? workDays : [])
+      .map((day) => Number(day))
+      .filter((day) => Number.isInteger(day) && day >= 0 && day <= 6)
+  )).sort((left, right) => left - right);
+
+  return normalized.length ? normalized : [1, 2, 3, 4, 5];
+}
+
+function normalizeBlockedSlots(blockedSlots) {
+  return (Array.isArray(blockedSlots) ? blockedSlots : []).reduce((accumulator, slot) => {
+    if (!slot || typeof slot !== 'object') {
+      return accumulator;
+    }
+
+    const normalized = {};
+    if (slot.time && isValidTime(slot.time)) {
+      normalized.time = String(slot.time);
+    }
+    if (slot.date && isValidDate(slot.date)) {
+      normalized.date = String(slot.date);
+    }
+    if (slot.service && String(slot.service).trim()) {
+      normalized.service = String(slot.service).trim();
+    }
+
+    if (normalized.time || normalized.date || normalized.service) {
+      accumulator.push(normalized);
+    }
+
+    return accumulator;
+  }, []);
+}
+
+function normalizeAvailability(availability = {}) {
+  const workDays = normalizeWorkDays(availability.workDays);
+  const dayStart = isValidTime(availability.dayStart) ? String(availability.dayStart) : DEFAULT_DAY_START;
+  const dayEnd = isValidTime(availability.dayEnd) ? String(availability.dayEnd) : DEFAULT_DAY_END;
+  const breakStart = isValidTime(availability.breakStart) ? String(availability.breakStart) : DEFAULT_BREAK_START;
+  const breakEnd = isValidTime(availability.breakEnd) ? String(availability.breakEnd) : DEFAULT_BREAK_END;
+  const slotIntervalMinutes = Number.isInteger(Number(availability.slotIntervalMinutes))
+    ? Math.min(Math.max(Number(availability.slotIntervalMinutes), 15), 120)
+    : DEFAULT_SLOT_INTERVAL_MINUTES;
+
+  const safeDayStartMinutes = timeToMinutes(dayStart);
+  const safeDayEndMinutes = timeToMinutes(dayEnd);
+  const safeBreakStartMinutes = timeToMinutes(breakStart);
+  const safeBreakEndMinutes = timeToMinutes(breakEnd);
+
+  const hasValidDayRange = safeDayStartMinutes !== null
+    && safeDayEndMinutes !== null
+    && safeDayEndMinutes > safeDayStartMinutes;
+
+  const hasValidBreakRange = hasValidDayRange
+    && safeBreakStartMinutes !== null
+    && safeBreakEndMinutes !== null
+    && safeBreakEndMinutes > safeBreakStartMinutes
+    && safeBreakStartMinutes > safeDayStartMinutes
+    && safeBreakEndMinutes < safeDayEndMinutes;
+
+  return {
+    workDays,
+    blockedSlots: normalizeBlockedSlots(availability.blockedSlots),
+    dayStart: hasValidDayRange ? dayStart : DEFAULT_DAY_START,
+    dayEnd: hasValidDayRange ? dayEnd : DEFAULT_DAY_END,
+    breakStart: hasValidBreakRange ? breakStart : DEFAULT_BREAK_START,
+    breakEnd: hasValidBreakRange ? breakEnd : DEFAULT_BREAK_END,
+    slotIntervalMinutes
+  };
+}
+
+function normalizeBarber(barber = {}) {
+  return {
     ...barber,
+    id: String(barber.id || '').trim(),
+    name: String(barber.name || '').trim(),
+    accessCode: String(barber.accessCode || '').trim(),
+    role: String(barber.role || '').trim(),
+    experience: String(barber.experience || '').trim(),
+    bio: String(barber.bio || '').trim(),
+    supportedServices: Array.from(new Set((Array.isArray(barber.supportedServices) ? barber.supportedServices : [])
+      .map((service) => String(service).trim())
+      .filter(Boolean))),
+    availability: normalizeAvailability(barber.availability || {}),
     active: barber.active !== false,
+    createdAt: barber.createdAt || null,
+    updatedAt: barber.updatedAt || null,
+    deletedAt: barber.deletedAt || null,
     phoneNumber: barber.phoneNumber || '',
     phoneVerified: barber.phoneVerified === true,
     phoneVerificationRequestedAt: barber.phoneVerificationRequestedAt || null,
@@ -47,44 +188,139 @@ function readBarbers() {
     passwordHash: barber.passwordHash || null,
     accountCreatedAt: barber.accountCreatedAt || null,
     sessionTokenHash: barber.sessionTokenHash || null,
-    sessionExpiresAt: barber.sessionExpiresAt || null,
-    createdAt: barber.createdAt || null,
-    updatedAt: barber.updatedAt || null,
-    deletedAt: barber.deletedAt || null
-  }));
+    sessionExpiresAt: barber.sessionExpiresAt || null
+  };
+}
+
+function normalizeReservation(reservation = {}) {
+  return {
+    ...reservation,
+    customer: reservation.customer || {},
+    durationMinutes: Number(reservation.durationMinutes) || getServiceDuration(reservation.service),
+    confirmedAt: reservation.confirmedAt || null
+  };
+}
+
+function normalizeNotification(notification = {}) {
+  return {
+    ...notification,
+    metadata: notification.metadata || {}
+  };
+}
+
+const db = new DatabaseSync(SQLITE_PATH);
+
+db.exec(`
+  PRAGMA journal_mode = WAL;
+  CREATE TABLE IF NOT EXISTS barbers (
+    id TEXT PRIMARY KEY,
+    payload TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS reservations (
+    id TEXT PRIMARY KEY,
+    payload TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS notifications (
+    id TEXT PRIMARY KEY,
+    payload TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+`);
+
+const selectRowsByUpdatedAtDesc = {
+  barbers: db.prepare('SELECT payload FROM barbers ORDER BY updated_at DESC, id DESC'),
+  reservations: db.prepare('SELECT payload FROM reservations ORDER BY updated_at DESC, id DESC'),
+  notifications: db.prepare('SELECT payload FROM notifications ORDER BY updated_at DESC, id DESC')
+};
+const clearTableStatements = {
+  barbers: db.prepare('DELETE FROM barbers'),
+  reservations: db.prepare('DELETE FROM reservations'),
+  notifications: db.prepare('DELETE FROM notifications')
+};
+const insertStatements = {
+  barbers: db.prepare('INSERT OR REPLACE INTO barbers (id, payload, updated_at) VALUES (?, ?, ?)'),
+  reservations: db.prepare('INSERT OR REPLACE INTO reservations (id, payload, updated_at) VALUES (?, ?, ?)'),
+  notifications: db.prepare('INSERT OR REPLACE INTO notifications (id, payload, updated_at) VALUES (?, ?, ?)')
+};
+
+function countTableRows(tableName) {
+  return db.prepare(`SELECT COUNT(*) AS count FROM ${tableName}`).get().count;
+}
+
+function writeSnapshot(filePath, rows) {
+  fs.writeFileSync(filePath, JSON.stringify(rows, null, 2));
+}
+
+function replaceTable(tableName, rows, normalizeRow, snapshotPath) {
+  const normalizedRows = rows.map(normalizeRow);
+  try {
+    db.exec('BEGIN');
+    clearTableStatements[tableName].run();
+    normalizedRows.forEach((row) => {
+      insertStatements[tableName].run(
+        row.id,
+        JSON.stringify(row),
+        row.updatedAt || row.createdAt || new Date(0).toISOString()
+      );
+    });
+    db.exec('COMMIT');
+  } catch (error) {
+    db.exec('ROLLBACK');
+    throw error;
+  }
+  writeSnapshot(snapshotPath, normalizedRows);
+}
+
+function readTable(tableName, normalizeRow) {
+  return selectRowsByUpdatedAtDesc[tableName].all().map((entry) => normalizeRow(JSON.parse(entry.payload)));
+}
+
+function initializeStorage() {
+  if (countTableRows('barbers') === 0) {
+    replaceTable('barbers', readJsonArray(BARBERS_PATH), normalizeBarber, BARBERS_PATH);
+  } else {
+    writeSnapshot(BARBERS_PATH, readTable('barbers', normalizeBarber));
+  }
+
+  if (countTableRows('reservations') === 0) {
+    replaceTable('reservations', readJsonArray(RESERVATIONS_PATH), normalizeReservation, RESERVATIONS_PATH);
+  } else {
+    writeSnapshot(RESERVATIONS_PATH, readTable('reservations', normalizeReservation));
+  }
+
+  if (countTableRows('notifications') === 0) {
+    replaceTable('notifications', readJsonArray(NOTIFICATIONS_PATH), normalizeNotification, NOTIFICATIONS_PATH);
+  } else {
+    writeSnapshot(NOTIFICATIONS_PATH, readTable('notifications', normalizeNotification));
+  }
+}
+
+initializeStorage();
+
+function readBarbers() {
+  return readTable('barbers', normalizeBarber);
 }
 
 function writeBarbers(barbers) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(BARBERS_PATH, JSON.stringify(barbers, null, 2));
+  replaceTable('barbers', barbers, normalizeBarber, BARBERS_PATH);
 }
 
 function readReservations() {
-  if (!fs.existsSync(RESERVATIONS_PATH)) {
-    return [];
-  }
-
-  const raw = fs.readFileSync(RESERVATIONS_PATH, 'utf-8');
-  return JSON.parse(raw);
+  return readTable('reservations', normalizeReservation);
 }
 
 function writeReservations(reservations) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(RESERVATIONS_PATH, JSON.stringify(reservations, null, 2));
+  replaceTable('reservations', reservations, normalizeReservation, RESERVATIONS_PATH);
 }
 
 function readNotifications() {
-  if (!fs.existsSync(NOTIFICATIONS_PATH)) {
-    return [];
-  }
-
-  const raw = fs.readFileSync(NOTIFICATIONS_PATH, 'utf-8');
-  return JSON.parse(raw);
+  return readTable('notifications', normalizeNotification);
 }
 
 function writeNotifications(notifications) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(NOTIFICATIONS_PATH, JSON.stringify(notifications, null, 2));
+  replaceTable('notifications', notifications, normalizeNotification, NOTIFICATIONS_PATH);
 }
 
 function toPublicBarber(barber) {
@@ -171,6 +407,7 @@ function toReservationSummary(reservation) {
     barberId: reservation.barberId,
     barberName: reservation.barberName,
     service: reservation.service,
+    durationMinutes: getReservationDuration(reservation),
     date: reservation.date,
     time: reservation.time,
     status: reservation.status,
@@ -369,6 +606,53 @@ function getWeekday(dateString) {
   return new Date(`${dateString}T12:00:00`).getDay();
 }
 
+function getServiceDuration(service) {
+  return SERVICE_DURATIONS[String(service).trim()] || 30;
+}
+
+function getReservationDuration(reservation) {
+  return Number(reservation.durationMinutes) || getServiceDuration(reservation.service);
+}
+
+function rangesOverlap(startA, endA, startB, endB) {
+  return startA < endB && startB < endA;
+}
+
+function getAvailabilityWindow(availability = {}) {
+  const dayStartMinutes = timeToMinutes(availability.dayStart || DEFAULT_DAY_START);
+  const dayEndMinutes = timeToMinutes(availability.dayEnd || DEFAULT_DAY_END);
+  const breakStartMinutes = timeToMinutes(availability.breakStart || DEFAULT_BREAK_START);
+  const breakEndMinutes = timeToMinutes(availability.breakEnd || DEFAULT_BREAK_END);
+
+  return {
+    dayStartMinutes: dayStartMinutes ?? timeToMinutes(DEFAULT_DAY_START),
+    dayEndMinutes: dayEndMinutes ?? timeToMinutes(DEFAULT_DAY_END),
+    breakStartMinutes,
+    breakEndMinutes,
+    slotIntervalMinutes: Number(availability.slotIntervalMinutes) || DEFAULT_SLOT_INTERVAL_MINUTES
+  };
+}
+
+function slotConflictsWithBlockedSlot(slot, service, startMinutes, endMinutes) {
+  const sameDate = !slot.date || slot.date === service.date;
+  const sameService = !slot.service || slot.service === service.name;
+
+  if (!sameDate || !sameService) {
+    return false;
+  }
+
+  if (!slot.time) {
+    return true;
+  }
+
+  const blockedStart = timeToMinutes(slot.time);
+  if (blockedStart === null) {
+    return false;
+  }
+
+  return rangesOverlap(startMinutes, endMinutes, blockedStart, blockedStart + DEFAULT_SLOT_INTERVAL_MINUTES);
+}
+
 function isBarberAvailable(barber, service, date, time, reservations = []) {
   if (barber.active === false) return false;
   if (!barber.supportedServices.includes(service)) return false;
@@ -377,14 +661,23 @@ function isBarberAvailable(barber, service, date, time, reservations = []) {
   const workDays = Array.isArray(availability.workDays) ? availability.workDays : [];
   const blockedSlots = Array.isArray(availability.blockedSlots) ? availability.blockedSlots : [];
   const weekday = getWeekday(date);
+  const window = getAvailabilityWindow(availability);
+  const serviceDuration = getServiceDuration(service);
+  const startMinutes = timeToMinutes(time);
+  const endMinutes = startMinutes === null ? null : startMinutes + serviceDuration;
 
-  if (!workDays.includes(weekday)) return false;
+  if (!workDays.includes(weekday) || startMinutes === null || endMinutes === null) return false;
+  if (startMinutes < window.dayStartMinutes || endMinutes > window.dayEndMinutes) return false;
+  if (
+    window.breakStartMinutes !== null
+    && window.breakEndMinutes !== null
+    && rangesOverlap(startMinutes, endMinutes, window.breakStartMinutes, window.breakEndMinutes)
+  ) {
+    return false;
+  }
 
   const blockedByAvailability = blockedSlots.some((slot) => {
-    const sameDate = !slot.date || slot.date === date;
-    const sameTime = !slot.time || slot.time === time;
-    const sameService = !slot.service || slot.service === service;
-    return sameDate && sameTime && sameService;
+    return slotConflictsWithBlockedSlot(slot, { date, name: service }, startMinutes, endMinutes);
   });
 
   if (blockedByAvailability) return false;
@@ -393,12 +686,43 @@ function isBarberAvailable(barber, service, date, time, reservations = []) {
     reservation.barberId === barber.id
     && isConfirmedReservation(reservation)
     && reservation.date === date
-    && reservation.time === time
+    && rangesOverlap(
+      startMinutes,
+      endMinutes,
+      timeToMinutes(reservation.time),
+      (timeToMinutes(reservation.time) || 0) + getReservationDuration(reservation)
+    )
   ));
 }
 
 function getAvailableBarbers(barbers, reservations, service, date, time) {
   return barbers.filter((barber) => isBarberAvailable(barber, service, date, time, reservations));
+}
+
+function generateTimeOptionsForBarber(barber, service, date) {
+  const availability = normalizeAvailability(barber.availability || {});
+  const window = getAvailabilityWindow(availability);
+  const serviceDuration = getServiceDuration(service);
+  const slots = [];
+
+  for (
+    let currentStart = window.dayStartMinutes;
+    currentStart + serviceDuration <= window.dayEndMinutes;
+    currentStart += window.slotIntervalMinutes
+  ) {
+    const currentEnd = currentStart + serviceDuration;
+    if (
+      window.breakStartMinutes !== null
+      && window.breakEndMinutes !== null
+      && rangesOverlap(currentStart, currentEnd, window.breakStartMinutes, window.breakEndMinutes)
+    ) {
+      continue;
+    }
+
+    slots.push(minutesToTime(currentStart));
+  }
+
+  return slots.filter((time) => isBarberAvailable(barber, service, date, time, []));
 }
 
 function rejectPendingReservationsForBarber(reservations, barber) {
@@ -522,6 +846,11 @@ function validateBarberPayload(body) {
     return blockedSlotsError;
   }
 
+  const scheduleError = validateScheduleSettings(body.availability);
+  if (scheduleError) {
+    return scheduleError;
+  }
+
   if (!validatePhoneNumber(body.phoneNumber)) {
     return 'phoneNumber must use a valid mobile number format, for example +351912345678.';
   }
@@ -530,9 +859,6 @@ function validateBarberPayload(body) {
 }
 
 function validateBlockedSlots(blockedSlots) {
-  const timePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-
   for (const slot of blockedSlots) {
     if (!slot || typeof slot !== 'object') {
       return 'Each blocked slot must be an object.';
@@ -542,11 +868,11 @@ function validateBlockedSlots(blockedSlots) {
       return 'Each blocked slot must include at least a time, date, or service.';
     }
 
-    if (slot.time && !timePattern.test(String(slot.time))) {
+    if (slot.time && !isValidTime(slot.time)) {
       return `Invalid blocked time: ${slot.time}`;
     }
 
-    if (slot.date && !datePattern.test(String(slot.date))) {
+    if (slot.date && !isValidDate(slot.date)) {
       return `Invalid blocked date: ${slot.date}`;
     }
 
@@ -558,8 +884,43 @@ function validateBlockedSlots(blockedSlots) {
   return null;
 }
 
+function validateScheduleSettings(availability = {}) {
+  const dayStartMinutes = timeToMinutes(availability.dayStart || DEFAULT_DAY_START);
+  const dayEndMinutes = timeToMinutes(availability.dayEnd || DEFAULT_DAY_END);
+  const breakStartMinutes = timeToMinutes(availability.breakStart || DEFAULT_BREAK_START);
+  const breakEndMinutes = timeToMinutes(availability.breakEnd || DEFAULT_BREAK_END);
+  const slotIntervalMinutes = Number(availability.slotIntervalMinutes || DEFAULT_SLOT_INTERVAL_MINUTES);
+
+  if (dayStartMinutes === null || dayEndMinutes === null || dayEndMinutes <= dayStartMinutes) {
+    return 'Availability must include valid day start and end times.';
+  }
+
+  if (!Number.isInteger(slotIntervalMinutes) || slotIntervalMinutes < 15 || slotIntervalMinutes > 120) {
+    return 'slotIntervalMinutes must be an integer between 15 and 120.';
+  }
+
+  if (
+    availability.breakStart
+    || availability.breakEnd
+    || breakStartMinutes !== timeToMinutes(DEFAULT_BREAK_START)
+    || breakEndMinutes !== timeToMinutes(DEFAULT_BREAK_END)
+  ) {
+    if (
+      breakStartMinutes === null
+      || breakEndMinutes === null
+      || breakEndMinutes <= breakStartMinutes
+      || breakStartMinutes <= dayStartMinutes
+      || breakEndMinutes >= dayEndMinutes
+    ) {
+      return 'Break start and end must sit inside the working day.';
+    }
+  }
+
+  return null;
+}
+
 function validateDate(date) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(String(date || ''));
+  return isValidDate(date);
 }
 
 function validateEmail(email) {
@@ -596,9 +957,9 @@ function getAvailableDates(barbers, reservations, service, barberId, days = BOOK
   for (let index = 0; index < days; index += 1) {
     const currentDate = addDays(safeStartDate, index);
     const dateString = formatDate(currentDate);
-    const hasAvailability = TIME_OPTIONS.some((time) => targetBarbers.some((barber) => (
-      isBarberAvailable(barber, service, dateString, time, reservations)
-    )));
+    const hasAvailability = targetBarbers.some((barber) => (
+      getAvailableTimes(targetBarbers, reservations, service, barber.id, dateString).length > 0
+    ));
 
     if (hasAvailability) {
       dates.push(dateString);
@@ -622,9 +983,26 @@ function getAvailableTimes(barbers, reservations, service, barberId, date) {
     return [];
   }
 
-  return TIME_OPTIONS.filter((time) => targetBarbers.some((barber) => (
-    isBarberAvailable(barber, service, date, time, reservations)
-  )));
+  const timeSet = new Set();
+
+  targetBarbers.forEach((barber) => {
+    const availability = normalizeAvailability(barber.availability || {});
+    const window = getAvailabilityWindow(availability);
+    const serviceDuration = getServiceDuration(service);
+
+    for (
+      let currentStart = window.dayStartMinutes;
+      currentStart + serviceDuration <= window.dayEndMinutes;
+      currentStart += window.slotIntervalMinutes
+    ) {
+      const candidateTime = minutesToTime(currentStart);
+      if (isBarberAvailable(barber, service, date, candidateTime, reservations)) {
+        timeSet.add(candidateTime);
+      }
+    }
+  });
+
+  return [...timeSet].sort((left, right) => timeToMinutes(left) - timeToMinutes(right));
 }
 
 function createAccessCode(name) {
@@ -732,13 +1110,15 @@ async function handleApi(request, response, url) {
       return;
     }
 
-    if (!TIME_OPTIONS.includes(String(body.time))) {
+    const barbers = readBarbers().filter((barber) => barber.active !== false);
+    const reservations = readReservations();
+    const availableTimes = getAvailableTimes(barbers, reservations, body.service, body.barberId || body.barber, body.date);
+
+    if (!availableTimes.includes(String(body.time).trim())) {
       sendJson(response, 400, { error: 'Please choose a valid booking time.' });
       return;
     }
 
-    const barbers = readBarbers().filter((barber) => barber.active !== false);
-    const reservations = readReservations();
     const normalizedBarberId = normalizeBarberSelection(body.barberId || body.barber);
     const targetBarbers = normalizedBarberId === 'no-preference'
       ? getAvailableBarbers(barbers, reservations, body.service, body.date, body.time)
@@ -759,6 +1139,7 @@ async function handleApi(request, response, url) {
       barberId: assignedBarber.id,
       barberName: assignedBarber.name,
       service: String(body.service).trim(),
+      durationMinutes: getServiceDuration(body.service),
       date: String(body.date).trim(),
       time: String(body.time).trim(),
       status: 'pending',
@@ -1055,10 +1436,7 @@ async function handleApi(request, response, url) {
       sessionExpiresAt: null,
       notificationPreference: 'sms',
       supportedServices: body.supportedServices.map((service) => String(service).trim()).filter(Boolean),
-      availability: {
-        workDays: body.availability.workDays,
-        blockedSlots: Array.isArray(body.availability.blockedSlots) ? body.availability.blockedSlots : []
-      },
+      availability: normalizeAvailability(body.availability || {}),
       active: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -1126,10 +1504,7 @@ async function handleApi(request, response, url) {
     barber.sessionTokenHash = barber.sessionTokenHash || null;
     barber.sessionExpiresAt = barber.sessionExpiresAt || null;
     barber.supportedServices = body.supportedServices.map((service) => String(service).trim()).filter(Boolean);
-    barber.availability = {
-      workDays: body.availability.workDays,
-      blockedSlots: Array.isArray(body.availability.blockedSlots) ? body.availability.blockedSlots : []
-    };
+    barber.availability = normalizeAvailability(body.availability || {});
     barber.updatedAt = new Date().toISOString();
     barber.active = body.active === false ? false : !preservedDeletedState;
     if (barber.active) {
@@ -1349,26 +1724,18 @@ async function handleApi(request, response, url) {
       return;
     }
 
-    if (body.workDays) {
-      if (!Array.isArray(body.workDays) || body.workDays.some((day) => !Number.isInteger(day) || day < 0 || day > 6)) {
-        sendJson(response, 400, { error: 'workDays must be an array of integers between 0 and 6.' });
-        return;
-      }
-      barber.availability.workDays = body.workDays;
+    const nextAvailability = normalizeAvailability({
+      ...barber.availability,
+      ...body
+    });
+    const scheduleError = validateScheduleSettings(nextAvailability);
+    const blockedSlotsError = validateBlockedSlots(nextAvailability.blockedSlots);
+    if (scheduleError || blockedSlotsError) {
+      sendJson(response, 400, { error: scheduleError || blockedSlotsError });
+      return;
     }
 
-    if (body.blockedSlots) {
-      if (!Array.isArray(body.blockedSlots)) {
-        sendJson(response, 400, { error: 'blockedSlots must be an array.' });
-        return;
-      }
-      const blockedSlotsError = validateBlockedSlots(body.blockedSlots);
-      if (blockedSlotsError) {
-        sendJson(response, 400, { error: blockedSlotsError });
-        return;
-      }
-      barber.availability.blockedSlots = body.blockedSlots;
-    }
+    barber.availability = nextAvailability;
 
     writeBarbers(barbers);
     sendJson(response, 200, {
@@ -1405,26 +1772,18 @@ async function handleApi(request, response, url) {
 
     if (!requireBarberAccess(request, response, barber)) return;
 
-    if (body.workDays) {
-      if (!Array.isArray(body.workDays) || body.workDays.some((day) => !Number.isInteger(day) || day < 0 || day > 6)) {
-        sendJson(response, 400, { error: 'workDays must be an array of integers between 0 and 6.' });
-        return;
-      }
-      barber.availability.workDays = body.workDays;
+    const nextAvailability = normalizeAvailability({
+      ...barber.availability,
+      ...body
+    });
+    const scheduleError = validateScheduleSettings(nextAvailability);
+    const blockedSlotsError = validateBlockedSlots(nextAvailability.blockedSlots);
+    if (scheduleError || blockedSlotsError) {
+      sendJson(response, 400, { error: scheduleError || blockedSlotsError });
+      return;
     }
 
-    if (body.blockedSlots) {
-      if (!Array.isArray(body.blockedSlots)) {
-        sendJson(response, 400, { error: 'blockedSlots must be an array.' });
-        return;
-      }
-      const blockedSlotsError = validateBlockedSlots(body.blockedSlots);
-      if (blockedSlotsError) {
-        sendJson(response, 400, { error: blockedSlotsError });
-        return;
-      }
-      barber.availability.blockedSlots = body.blockedSlots;
-    }
+    barber.availability = nextAvailability;
 
     writeBarbers(barbers);
     sendJson(response, 200, {

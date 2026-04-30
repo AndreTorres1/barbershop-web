@@ -344,6 +344,31 @@
             </div>
           </div>
           <div class="field">
+            <label for="barberDayStart">Day Start</label>
+            <input id="barberDayStart" name="barberDayStart" type="time" value="09:00">
+          </div>
+          <div class="field">
+            <label for="barberDayEnd">Day End</label>
+            <input id="barberDayEnd" name="barberDayEnd" type="time" value="19:00">
+          </div>
+          <div class="field">
+            <label for="barberBreakStart">Break Start</label>
+            <input id="barberBreakStart" name="barberBreakStart" type="time" value="12:00">
+          </div>
+          <div class="field">
+            <label for="barberBreakEnd">Break End</label>
+            <input id="barberBreakEnd" name="barberBreakEnd" type="time" value="14:00">
+          </div>
+          <div class="field">
+            <label for="barberSlotIntervalMinutes">Slot Interval</label>
+            <select id="barberSlotIntervalMinutes" name="barberSlotIntervalMinutes">
+              <option value="15">15 minutes</option>
+              <option value="30" selected>30 minutes</option>
+              <option value="45">45 minutes</option>
+              <option value="60">60 minutes</option>
+            </select>
+          </div>
+          <div class="field">
             <label for="barberBlockedTimes">Blocked Times</label>
             <input id="barberBlockedTimes" name="barberBlockedTimes" type="text" placeholder="09:00, 14:00">
           </div>
@@ -435,6 +460,11 @@ const barberPortalStatus = document.getElementById('barberPortalStatus');
 const barberAvailabilityForm = document.getElementById('barberAvailabilityForm');
 const barberBlockedTimesField = document.getElementById('barberBlockedTimes');
 const barberBlockedDatesField = document.getElementById('barberBlockedDates');
+const barberDayStartField = document.getElementById('barberDayStart');
+const barberDayEndField = document.getElementById('barberDayEnd');
+const barberBreakStartField = document.getElementById('barberBreakStart');
+const barberBreakEndField = document.getElementById('barberBreakEnd');
+const barberSlotIntervalField = document.getElementById('barberSlotIntervalMinutes');
 const barberAvailabilityStatus = document.getElementById('barberAvailabilityStatus');
 const barberSummary = document.getElementById('barberSummary');
 const pageTitle = document.getElementById('pageTitle');
@@ -457,6 +487,8 @@ const signInSubmitBtn = document.getElementById('signInSubmitBtn');
 const barberPendingCount = document.getElementById('barberPendingCount');
 const barberConfirmedCount = document.getElementById('barberConfirmedCount');
 const barberNotificationCount = document.getElementById('barberNotificationCount');
+
+applyBarberScheduleDefaults();
 
 const pathParts = window.location.pathname.split('/').filter(Boolean);
 const barberId = pathParts[0] === 'barber' ? pathParts[1] : new URLSearchParams(window.location.search).get('barber');
@@ -507,6 +539,14 @@ function clearBarberSession() {
   sessionStorage.removeItem(BARBER_SESSION_KEY);
 }
 
+function applyBarberScheduleDefaults(availability = {}) {
+  barberDayStartField.value = availability.dayStart || '09:00';
+  barberDayEndField.value = availability.dayEnd || '19:00';
+  barberBreakStartField.value = availability.breakStart || '12:00';
+  barberBreakEndField.value = availability.breakEnd || '14:00';
+  barberSlotIntervalField.value = String(availability.slotIntervalMinutes || 30);
+}
+
 function setAvailabilityLocked(isLocked) {
   barberAvailabilityForm.querySelectorAll('input, button').forEach((element) => {
     element.disabled = isLocked;
@@ -544,6 +584,40 @@ function validateBlockedSlots(blockedSlots) {
   return null;
 }
 
+function validateScheduleSettings(availability) {
+  const toMinutes = (timeValue) => {
+    const [hours, minutes] = String(timeValue || '').split(':').map(Number);
+    if (!Number.isInteger(hours) || !Number.isInteger(minutes)) return null;
+    return (hours * 60) + minutes;
+  };
+
+  const dayStartMinutes = toMinutes(availability.dayStart);
+  const dayEndMinutes = toMinutes(availability.dayEnd);
+  const breakStartMinutes = toMinutes(availability.breakStart);
+  const breakEndMinutes = toMinutes(availability.breakEnd);
+  const slotIntervalMinutes = Number(availability.slotIntervalMinutes);
+
+  if (dayStartMinutes === null || dayEndMinutes === null || dayEndMinutes <= dayStartMinutes) {
+    return 'Availability must include valid day start and end times.';
+  }
+
+  if (!Number.isInteger(slotIntervalMinutes) || slotIntervalMinutes < 15 || slotIntervalMinutes > 120) {
+    return 'Slot interval must be between 15 and 120 minutes.';
+  }
+
+  if (
+    breakStartMinutes === null
+    || breakEndMinutes === null
+    || breakEndMinutes <= breakStartMinutes
+    || breakStartMinutes <= dayStartMinutes
+    || breakEndMinutes >= dayEndMinutes
+  ) {
+    return 'Break start and end must sit inside the working day.';
+  }
+
+  return null;
+}
+
 function fillBarberAvailabilityForm(barber) {
   const workDays = (barber.availability?.workDays || []).map(String);
   const blockedSlots = barber.availability?.blockedSlots || [];
@@ -552,6 +626,7 @@ function fillBarberAvailabilityForm(barber) {
   });
   barberBlockedTimesField.value = blockedSlots.filter((slot) => slot.time).map((slot) => slot.time).join(', ');
   barberBlockedDatesField.value = blockedSlots.filter((slot) => slot.date).map((slot) => slot.date).join(', ');
+  applyBarberScheduleDefaults(barber.availability || {});
 }
 
 function renderBarberSummary(barber) {
@@ -565,6 +640,7 @@ function renderBarberSummary(barber) {
       <p style="margin-top:0.85rem;"><strong>Services:</strong> ${barber.supportedServices.join(', ')}</p>
       <p style="margin-top:0.65rem;"><strong>Mobile:</strong> ${barber.phoneNumber || 'Not registered'}${barber.phoneVerified ? ' · verified' : ' · pending verification'}</p>
       <p style="margin-top:0.65rem;"><strong>Work days:</strong> ${(barber.availability?.workDays || []).join(', ') || 'None set'}</p>
+      <p style="margin-top:0.65rem;"><strong>Hours:</strong> ${(barber.availability?.dayStart || '09:00')} - ${(barber.availability?.dayEnd || '19:00')} · break ${(barber.availability?.breakStart || '12:00')} - ${(barber.availability?.breakEnd || '14:00')} · ${(barber.availability?.slotIntervalMinutes || 30)} min slots</p>
       <div class="chips">
         ${blockedSlots.length ? blockedSlots.map((slot) => `<span class="chip">${slot.date ? `Date ${slot.date}` : `Time ${slot.time}`}</span>`).join('') : '<span class="chip">No blocked slots</span>'}
       </div>
@@ -879,6 +955,15 @@ barberAvailabilityForm.addEventListener('submit', async (event) => {
 
   const workDays = [...barberAvailabilityForm.querySelectorAll('input[name="barberWorkDays"]:checked')].map((input) => Number(input.value));
   const blockedSlots = parseBlockedSlots();
+  const availabilityPayload = {
+    workDays,
+    blockedSlots,
+    dayStart: barberDayStartField.value,
+    dayEnd: barberDayEndField.value,
+    breakStart: barberBreakStartField.value,
+    breakEnd: barberBreakEndField.value,
+    slotIntervalMinutes: Number(barberSlotIntervalField.value)
+  };
 
   if (!workDays.length) {
     setStatus(barberAvailabilityStatus, 'Select at least one working day.', true);
@@ -891,6 +976,12 @@ barberAvailabilityForm.addEventListener('submit', async (event) => {
     return;
   }
 
+  const scheduleError = validateScheduleSettings(availabilityPayload);
+  if (scheduleError) {
+    setStatus(barberAvailabilityStatus, scheduleError, true);
+    return;
+  }
+
   try {
     const response = await fetch(`/api/barber/${currentBarberSession.id}/availability`, {
       method: 'PATCH',
@@ -898,7 +989,7 @@ barberAvailabilityForm.addEventListener('submit', async (event) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentBarberSession.token}`
       },
-      body: JSON.stringify({ workDays, blockedSlots })
+      body: JSON.stringify(availabilityPayload)
     });
     const result = await response.json();
 

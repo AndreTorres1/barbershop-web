@@ -1,51 +1,5 @@
 [
   {
-    "id": "ricardo-fonseca",
-    "name": "Ricardo Fonseca",
-    "accessCode": "RICARDO-2026",
-    "role": "Head Barber",
-    "experience": "12 Years",
-    "bio": "Master of classic cuts, fades, and traditional wet shaving. Trained in Seville and Porto. The one who started it all.",
-    "supportedServices": [
-      "Classic Haircut — €22",
-      "Cut and Beard — €35",
-      "Hot Towel Shave — €28",
-      "Beard Sculpting — €18",
-      "VIP Experience — €65"
-    ],
-    "availability": {
-      "workDays": [
-        1,
-        2,
-        3,
-        4
-      ],
-      "blockedSlots": [
-        {
-          "time": "33"
-        },
-        {
-          "date": "2026-05-01"
-        }
-      ]
-    },
-    "active": true,
-    "createdAt": null,
-    "updatedAt": null,
-    "deletedAt": null,
-    "phoneNumber": "",
-    "phoneVerified": false,
-    "phoneVerificationRequestedAt": null,
-    "phoneVerifiedAt": null,
-    "phoneVerificationCodeHash": null,
-    "notificationPreference": "sms",
-    "email": "",
-    "passwordHash": null,
-    "accountCreatedAt": null,
-    "sessionTokenHash": null,
-    "sessionExpiresAt": null
-  },
-  {
     "id": "tomas-alves",
     "name": "Tomás Alves",
     "accessCode": "TOMAS-2026",
@@ -71,7 +25,60 @@
         {
           "time": "10:30"
         }
-      ]
+      ],
+      "dayStart": "09:00",
+      "dayEnd": "19:00",
+      "breakStart": "12:00",
+      "breakEnd": "14:00",
+      "slotIntervalMinutes": 30
+    },
+    "active": true,
+    "createdAt": null,
+    "updatedAt": null,
+    "deletedAt": null,
+    "phoneNumber": "",
+    "phoneVerified": false,
+    "phoneVerificationRequestedAt": null,
+    "phoneVerifiedAt": null,
+    "phoneVerificationCodeHash": null,
+    "notificationPreference": "sms",
+    "email": "",
+    "passwordHash": null,
+    "accountCreatedAt": null,
+    "sessionTokenHash": null,
+    "sessionExpiresAt": null
+  },
+  {
+    "id": "ricardo-fonseca",
+    "name": "Ricardo Fonseca",
+    "accessCode": "RICARDO-2026",
+    "role": "Head Barber",
+    "experience": "12 Years",
+    "bio": "Master of classic cuts, fades, and traditional wet shaving. Trained in Seville and Porto. The one who started it all.",
+    "supportedServices": [
+      "Classic Haircut — €22",
+      "Cut and Beard — €35",
+      "Hot Towel Shave — €28",
+      "Beard Sculpting — €18",
+      "VIP Experience — €65"
+    ],
+    "availability": {
+      "workDays": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "blockedSlots": [
+        {
+          "date": "2026-05-01"
+        }
+      ],
+      "dayStart": "09:00",
+      "dayEnd": "19:00",
+      "breakStart": "12:00",
+      "breakEnd": "14:00",
+      "slotIntervalMinutes": 30
     },
     "active": true,
     "createdAt": null,
@@ -115,7 +122,12 @@
         {
           "time": "18:00"
         }
-      ]
+      ],
+      "dayStart": "09:00",
+      "dayEnd": "19:00",
+      "breakStart": "12:00",
+      "breakEnd": "14:00",
+      "slotIntervalMinutes": 30
     },
     "active": true,
     "createdAt": null,
@@ -145,10 +157,10 @@
     ],
     "availability": {
       "workDays": [
+        0,
         1,
         3,
-        5,
-        0
+        5
       ],
       "blockedSlots": [
         {
@@ -157,7 +169,12 @@
         {
           "time": "14:30"
         }
-      ]
+      ],
+      "dayStart": "09:00",
+      "dayEnd": "19:00",
+      "breakStart": "12:00",
+      "breakEnd": "14:00",
+      "slotIntervalMinutes": 30
     },
     "active": true,
     "createdAt": null,
