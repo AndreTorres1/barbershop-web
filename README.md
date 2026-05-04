@@ -116,17 +116,29 @@ Benefícios que a demo comunica:
 4. escolhe data e hora disponíveis
 5. envia o pedido de marcação
 
-## Áreas principais
+## Demo pública
 
-- site público: `http://localhost:3000/`
-- admin: `http://localhost:3000/admin`
-- barber access hub: `http://localhost:3000/barber`
-- onboarding de barbeiro: `http://localhost:3000/barber/onboard/:barberId`
-- portal privado de barbeiro: `http://localhost:3000/barber/:barberId`
+Versão pública da apresentação:
 
-Se a porta `3000` estiver ocupada, podes arrancar noutra, por exemplo `3001`.
+- [https://andretorres1.github.io/barbershop-web/](https://andretorres1.github.io/barbershop-web/)
 
-## Como correr a demo localmente
+Rotas principais do conceito do produto:
+
+- site público: `/`
+- admin dashboard: `/admin`
+- barber access hub: `/barber`
+- onboarding de barbeiro: `/barber/onboard/:barberId`
+- portal privado de barbeiro: `/barber/:barberId`
+
+Nota importante:
+
+- a versão publicada em GitHub Pages serve para apresentar o projeto ao cliente
+- as áreas privadas e a lógica completa de backend dependem de uma versão com servidor ativo
+- isto significa que o cliente consegue perceber a ideia, o design e o fluxo, mas o produto completo corre numa versão com backend
+
+## Como correr a versão completa
+
+Para desenvolvimento, testes internos ou demonstração com backend ligado:
 
 ```bash
 ADMIN_TOKEN=your-secret-token npm start
