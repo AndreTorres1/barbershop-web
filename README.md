@@ -1,34 +1,138 @@
 # The Sharp Cut
 
-Premium barbershop website with a public booking experience, a protected admin backoffice, and private barber workflows.
+Demo de uma plataforma digital para barbearias premium, pensada para mostrar a futuros clientes como um estúdio pode gerir marcações, equipa e operação num só produto.
 
-This project now goes beyond a static landing page. It includes:
+Este projeto não é apenas um website institucional. É uma demo funcional de um sistema com:
 
-- a public website with booking flow and live availability
-- a protected admin dashboard for barber CRUD and operational review
-- a barber access hub and private barber workspace
-- onboarding links for new barber accounts
-- SQLite-backed persistence with JSON snapshots for demo-friendly data
+- site público da barbearia
+- experiência de marcação online
+- painel de administração para gerir barbeiros
+- onboarding privado para novos barbeiros
+- área privada de cada barbeiro para agenda e pedidos
 
-## Main areas
+## Ideia do projeto
 
-- Public website: `http://localhost:3000/`
-- Admin dashboard: `http://localhost:3000/admin`
-- Barber access hub: `http://localhost:3000/barber`
-- Barber onboarding pattern: `http://localhost:3000/barber/onboard/:barberId`
-- Private barber workspace pattern: `http://localhost:3000/barber/:barberId`
+Muitas barbearias dependem de WhatsApp, chamadas ou mensagens soltas para marcar serviços, gerir horários e distribuir trabalho entre barbeiros. Isso cria fricção, atrasos e falta de controlo.
 
-If port `3000` is busy, start on another port, for example `3001`.
+O objetivo desta demo é mostrar uma alternativa mais profissional:
 
-## Run locally
+- o cliente marca online
+- o administrador gere a equipa
+- cada barbeiro controla a própria disponibilidade
+- o negócio ganha mais organização e melhor apresentação
 
-Start the project with an admin token:
+## O que esta demo mostra
+
+### 1. Site público
+
+O lado público da barbearia foi desenhado para passar uma imagem premium e converter visitas em marcações.
+
+Inclui:
+
+- landing page da marca
+- secções de serviços e experiência
+- fluxo de booking
+- escolha de barbeiro
+- seleção de datas e horas disponíveis
+
+### 2. Admin dashboard
+
+O painel de administração foi pensado como um backoffice simples e limpo.
+
+O admin consegue:
+
+- ver a operação num dashboard
+- criar barbeiros
+- editar barbeiros
+- remover ou restaurar barbeiros
+- acompanhar reservas
+- acompanhar notificações
+- copiar o link privado de onboarding de cada barbeiro
+
+### 3. Onboarding de barbeiros
+
+Quando um novo barbeiro entra na equipa:
+
+- o admin cria o perfil
+- o sistema gera um link de convite
+- o barbeiro abre esse link
+- cria a própria conta
+- passa a entrar na área privada com email e password
+
+Isto permite mostrar ao cliente final um fluxo mais realista do que simplesmente “adicionar utilizadores” manualmente.
+
+### 4. Área privada do barbeiro
+
+Cada barbeiro tem o seu próprio espaço para trabalho diário.
+
+Pode:
+
+- consultar pedidos pendentes
+- aceitar ou rejeitar reservas
+- adicionar notas de decisão
+- gerir dias de trabalho
+- definir hora de início e fim
+- configurar pausas
+- bloquear datas
+- bloquear horários específicos
+- marcar férias ou indisponibilidades
+
+## Valor para um cliente barbeiro
+
+Esta demo ajuda um potencial cliente a visualizar um produto com valor comercial real.
+
+Benefícios que a demo comunica:
+
+- imagem mais profissional para a marca
+- menos dependência de mensagens manuais
+- melhor organização da equipa
+- maior controlo da disponibilidade
+- fluxo de onboarding para novos barbeiros
+- base para crescer para um SaaS ou produto interno
+
+## Fluxo principal da demo
+
+### Fluxo do administrador
+
+1. entra no dashboard privado
+2. cria ou edita um barbeiro
+3. obtém o link de onboarding
+4. envia esse link ao barbeiro
+5. acompanha reservas, estados e operação
+
+### Fluxo do barbeiro
+
+1. recebe o link de convite
+2. cria a conta
+3. entra na área privada
+4. gere agenda e disponibilidade
+5. responde aos pedidos de reserva
+
+### Fluxo do cliente final
+
+1. entra no site público
+2. escolhe serviço
+3. escolhe barbeiro
+4. escolhe data e hora disponíveis
+5. envia o pedido de marcação
+
+## Áreas principais
+
+- site público: `http://localhost:3000/`
+- admin: `http://localhost:3000/admin`
+- barber access hub: `http://localhost:3000/barber`
+- onboarding de barbeiro: `http://localhost:3000/barber/onboard/:barberId`
+- portal privado de barbeiro: `http://localhost:3000/barber/:barberId`
+
+Se a porta `3000` estiver ocupada, podes arrancar noutra, por exemplo `3001`.
+
+## Como correr a demo localmente
 
 ```bash
 ADMIN_TOKEN=your-secret-token npm start
 ```
 
-Examples:
+Exemplos:
 
 ```bash
 npm start
@@ -36,141 +140,64 @@ PORT=3001 npm start
 ADMIN_TOKEN=adminRWRE PORT=3001 npm start
 ```
 
-If `ADMIN_TOKEN` is not set, the server falls back to `change-me-admin-token`.
+Se `ADMIN_TOKEN` não estiver definido, o projeto usa `change-me-admin-token`.
 
-## Current architecture
+## Credenciais e seed de demonstração
 
-- Frontend:
-  - `index.html` for the public website and booking journey
-  - `admin.html` for the backoffice
-  - `barber.html` for barber access hub and private workspace
-  - `barber-onboarding.html` for account setup
-- Backend:
-  - `server.js`
-- Persistence:
-  - primary runtime storage in `data/barbershop.sqlite`
-  - JSON snapshots kept in sync:
-    - `data/barbers.json`
-    - `data/reservations.json`
-    - `data/notifications.json`
+Token de admin usado na demo:
 
-## What the project supports now
+- `adminRWRE`
 
-### Public website
-
-- premium landing page
-- live booking options by service, barber, date, and time
-- slot availability based on:
-  - working days
-  - day start and end
-  - break windows
-  - slot interval
-  - blocked dates
-  - blocked times
-  - existing confirmed bookings
-
-### Admin dashboard
-
-- gated access with admin token before the real dashboard opens
-- overview cards for:
-  - total barbers
-  - active barbers
-  - pending bookings
-  - verification pending
-- barber CRUD:
-  - create
-  - edit
-  - soft delete
-  - restore
-- onboarding invite handling:
-  - onboarding link preview
-  - open invite
-  - copy invite link
-  - copy access code
-- bookings module with:
-  - search
-  - status filter
-  - barber filter
-  - pagination
-  - booking detail drawer
-- notifications overview
-- settings and route notes
-
-### Barber access and workspace
-
-- cleaner `/barber` access hub with a barber directory table
-- private workspace only shown in barber-specific context
-- login with:
-  - email + password after onboarding
-  - access code fallback on private barber route
-- upcoming confirmed schedule highlight
-- request filtering by:
-  - search
-  - status
-  - selected day
-  - selected week
-  - upcoming only
-- decision notes when confirming or rejecting requests
-- schedule controls:
-  - working days
-  - day hours
-  - break hours
-  - slot interval
-  - blocked dates
-  - blocked times
-  - vacation range helper
-  - extra blocked date helper
-  - recurring blocked time helper
-
-### Notifications
-
-- phone verification flow
-- logged notification records
-- provider-ready structure for future SMS/email integration
-
-## Admin flow
-
-1. Start the server with `ADMIN_TOKEN`.
-2. Open `/admin`.
-3. Enter the admin token.
-4. Create or edit a barber.
-5. Copy the onboarding link and access code.
-6. Send those to the barber.
-
-The admin does not create the barber password directly.
-
-## Barber onboarding flow
-
-1. The barber receives:
-   - onboarding URL
-   - access code
-2. The barber opens `/barber/onboard/:barberId`.
-3. The barber creates their own email and password.
-4. After that, they use `/barber` or their private route to enter the workspace.
-
-If the account already exists, the onboarding page now blocks account creation and sends the barber to the login flow instead.
-
-## Demo seed
-
-Current seeded access codes in `data/barbers.json`:
+Access codes atualmente existentes:
 
 - `Ricardo Fonseca`: `RICARDO-2026`
 - `Tomás Alves`: `TOMAS-2026`
 - `Miguel Costa`: `MIGUEL-2026`
 - `André Goncalves`: `ANDREG-67AC68`
 
-## API overview
+## O que está implementado
 
-### Public endpoints
+- website público com identidade premium
+- booking com disponibilidade dinâmica
+- painel de administração com CRUD de barbeiros
+- onboarding privado para novos barbeiros
+- login de barbeiros
+- gestão de agenda por barbeiro
+- reservas com estados
+- notificações registadas no sistema
+- persistência local com SQLite e snapshots JSON
+
+## Estrutura do projeto
+
+### Frontend
+
+- `index.html` -> site público e booking
+- `admin.html` -> painel de administração
+- `barber.html` -> acesso e área privada do barbeiro
+- `barber-onboarding.html` -> criação de conta do barbeiro
+
+### Backend
+
+- `server.js`
+
+### Dados
+
+- `data/barbershop.sqlite`
+- `data/barbers.json`
+- `data/reservations.json`
+- `data/notifications.json`
+
+## API principal
+
+### Pública
 
 - `GET /api/health`
 - `GET /api/barbers`
 - `GET /api/barbers/list`
-- `GET /api/barbers/availability?service=...&date=YYYY-MM-DD&time=HH:MM`
-- `GET /api/booking/options?service=...&barberId=...&date=YYYY-MM-DD`
+- `GET /api/booking/options`
 - `POST /api/bookings`
 
-### Admin endpoints
+### Admin
 
 - `GET /api/admin/barbers`
 - `GET /api/admin/dashboard`
@@ -178,11 +205,10 @@ Current seeded access codes in `data/barbers.json`:
 - `GET /api/admin/notifications`
 - `POST /api/admin/barbers`
 - `PATCH /api/admin/barbers/:id`
-- `PATCH /api/admin/barbers/:id/restore`
 - `DELETE /api/admin/barbers/:id`
-- `PATCH /api/admin/barbers/:id/availability`
+- `PATCH /api/admin/barbers/:id/restore`
 
-### Barber endpoints
+### Barbeiro
 
 - `GET /api/barber/:id/invite`
 - `POST /api/barber/:id/account-setup`
@@ -191,65 +217,31 @@ Current seeded access codes in `data/barbers.json`:
 - `POST /api/barber/:id/logout`
 - `GET /api/barber/:id/reservations`
 - `PATCH /api/barber/:id/reservations/:reservationId`
-- `GET /api/barber/:id/notifications`
 - `PATCH /api/barber/:id/availability`
-- `POST /api/barber/:id/verify-phone`
-- `POST /api/barber/:id/phone-verification/resend`
+- `GET /api/barber/:id/notifications`
 
-## Auth headers
+## O que um futuro cliente pode imaginar a partir desta demo
 
-Admin requests accept:
+Esta base já mostra bem o conceito, mas também pode evoluir para:
 
-- `Authorization: Bearer <ADMIN_TOKEN>`
-- `x-admin-token: <ADMIN_TOKEN>`
+- SMS ou email automáticos
+- calendário visual mais avançado
+- pagamentos online
+- multi-loja
+- métricas de faturação
+- gestão de equipa mais completa
+- autenticação mais robusta
 
-Barber private requests accept:
+## Porque este projeto é útil em contexto comercial
 
-- `Authorization: Bearer <BARBER_SESSION_OR_ACCESS_CODE>`
-- `x-barber-token: <BARBER_SESSION_OR_ACCESS_CODE>`
+Se estiveres a apresentar esta demo a uma barbearia, o cliente consegue perceber rapidamente:
 
-## Notes about notifications
+- como a marca ficaria online
+- como as marcações seriam geridas
+- como novos barbeiros poderiam ser adicionados
+- como cada barbeiro controlaria a própria agenda
+- como o negócio poderia parecer mais organizado e premium
 
-The project includes notification logging and verification flow, but delivery is still local/provider-ready.
+## Nota final
 
-Right now:
-
-- phone verification events are logged
-- pending booking notifications can be recorded
-- SMS is not yet sent through Twilio, Vonage, or another external provider
-
-That makes the project easier to run locally while preserving a realistic future integration path.
-
-## Suggested manual QA
-
-### Admin
-
-1. Open `/admin`
-2. Unlock with the admin token
-3. Create or edit a barber
-4. Copy invite link and access code
-5. Check bookings filters and the detail drawer
-
-### Barber
-
-1. Open `/barber`
-2. Use the directory to open a barber route or onboarding link
-3. Complete onboarding if needed
-4. Login to the workspace
-5. Edit schedule, blocked dates, and vacation range
-6. Review requests and add a decision note
-
-### Public booking
-
-1. Open `/`
-2. Choose a service and barber
-3. Check available dates and times
-4. Create a booking request
-5. Confirm the request shows up in the barber workspace
-
-## Portfolio-ready next steps
-
-- add screenshots of public site, admin, barber hub, and onboarding
-- add a short GIF of `admin -> invite -> onboarding -> login -> booking`
-- wire notifications to a real provider
-- split backend logic into services/modules for larger-scale growth
+Este projeto foi preparado como demo funcional e base de portefólio. A ideia principal é comunicar produto, fluxo e potencial comercial de forma clara, sem deixar de ter uma base técnica real por trás.
