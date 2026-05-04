@@ -37,6 +37,34 @@
   a { color: inherit; text-decoration: none; }
   button, input, textarea, select { font: inherit; }
 
+  .admin-gate-shell {
+    width: min(760px, calc(100% - 2rem));
+    margin: 1.5rem auto;
+  }
+
+  .admin-gate-card {
+    border: 1px solid var(--line);
+    background: rgba(10, 7, 4, 0.94);
+    border-radius: 28px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+  }
+
+  .admin-gate-card h2 {
+    font-family: Georgia, serif;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: normal;
+    margin: 0.4rem 0 0.7rem;
+  }
+
+  .admin-gate-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.9rem;
+    align-items: end;
+    margin-top: 1.5rem;
+  }
+
   .admin-shell {
     width: min(1540px, calc(100% - 2rem));
     margin: 1rem auto;
@@ -162,6 +190,45 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
+  }
+
+  .session-strip {
+    display: grid;
+    grid-template-columns: minmax(260px, 360px) auto auto 1fr;
+    gap: 0.8rem;
+    align-items: end;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    border-radius: 20px;
+  }
+
+  .focus-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-bottom: 1rem;
+  }
+
+  .focus-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.72rem 0.95rem;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+    color: var(--muted);
+    font-size: 0.84rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .focus-link:hover,
+  .focus-link:focus-visible {
+    color: var(--text);
+    border-color: var(--line-strong);
+    outline: none;
   }
 
   .btn,
@@ -346,8 +413,23 @@
     border-color: rgba(184, 224, 178, 0.28);
   }
 
+  .status-badge.confirmed {
+    color: var(--success);
+    border-color: rgba(184, 224, 178, 0.28);
+  }
+
+  .status-badge.pending {
+    color: var(--info);
+    border-color: rgba(140, 168, 255, 0.28);
+  }
+
   .status-badge.deleted,
   .tiny-badge.danger {
+    color: var(--danger);
+    border-color: rgba(255, 156, 144, 0.3);
+  }
+
+  .status-badge.rejected {
     color: var(--danger);
     border-color: rgba(255, 156, 144, 0.3);
   }
@@ -456,6 +538,25 @@
     padding: 0.9rem 1rem;
   }
 
+  .access-preview-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-top: 0.85rem;
+  }
+
+  .access-preview-actions button {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .link-inline {
+    color: var(--gold-soft);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    word-break: break-word;
+  }
+
   .actions {
     display: flex;
     gap: 0.75rem;
@@ -507,6 +608,124 @@
     font-size: 0.78rem;
   }
 
+  .table-toolbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) 180px 220px auto;
+    gap: 0.8rem;
+    align-items: end;
+    margin-bottom: 1rem;
+  }
+
+  .table-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .pagination-controls button {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .drawer-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 2, 1, 0.62);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 30;
+  }
+
+  .drawer-backdrop.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .detail-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: min(520px, 100vw);
+    height: 100vh;
+    background: rgba(12, 9, 6, 0.98);
+    border-left: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    transform: translateX(100%);
+    transition: transform 0.24s ease;
+    z-index: 31;
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .detail-drawer.is-open {
+    transform: translateX(0);
+  }
+
+  .drawer-head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.2rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .drawer-head h4 {
+    font-family: Georgia, serif;
+    font-size: 1.6rem;
+    font-weight: normal;
+    margin-top: 0.35rem;
+  }
+
+  .drawer-close {
+    min-width: 46px;
+    padding: 0.8rem;
+  }
+
+  .drawer-body {
+    overflow: auto;
+    padding: 1.2rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .detail-card {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.02);
+    padding: 0.9rem 1rem;
+  }
+
+  .detail-card strong {
+    display: block;
+    margin-top: 0.35rem;
+    color: #fff;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  .detail-card.full {
+    grid-column: 1 / -1;
+  }
+
   .empty-state {
     color: var(--muted);
     padding: 1.3rem 1rem;
@@ -535,6 +754,59 @@
     line-height: 1.7;
   }
 
+  details.section-collapse {
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: var(--panel);
+    overflow: hidden;
+  }
+
+  details.section-collapse > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 1rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background: rgba(255,255,255,0.02);
+  }
+
+  details.section-collapse > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .collapse-title strong {
+    display: block;
+    font-size: 1rem;
+    color: #fff;
+  }
+
+  .collapse-title span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.84rem;
+    margin-top: 0.2rem;
+  }
+
+  .collapse-state {
+    color: var(--gold-soft);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  .collapse-body {
+    padding: 1rem;
+  }
+
+  .collapse-body > .panel {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+  }
+
   @media (max-width: 1260px) {
     .admin-shell { grid-template-columns: 1fr; }
     .sidebar {
@@ -556,14 +828,19 @@
     .main,
     .sidebar { padding: 1rem; }
     .topbar,
+    .table-meta,
     .section-head { flex-direction: column; align-items: flex-start; }
     .topbar-actions,
     .actions { width: 100%; }
     .topbar-actions > *,
     .actions > * { flex: 1 1 100%; }
     .auth-strip,
+    .admin-gate-form,
+    .session-strip,
     .toolbar,
+    .table-toolbar,
     .field-row,
+    .detail-grid,
     .stats-row,
     .settings-grid { grid-template-columns: 1fr; }
     .sidebar-nav { grid-template-columns: 1fr; }
@@ -571,7 +848,23 @@
 </style>
 </head>
 <body>
-  <div class="admin-shell">
+  <section class="admin-gate-shell" id="adminAccessGate">
+    <div class="admin-gate-card">
+      <div class="eyebrow">Private access</div>
+      <h2>Enter the admin token to unlock the dashboard</h2>
+      <p class="subcopy">Use your admin token first. After validation, the full barbershop backoffice opens with live data.</p>
+      <form class="admin-gate-form" id="adminGateForm" novalidate>
+        <div class="field">
+          <label for="adminGateToken">Admin Token</label>
+          <input id="adminGateToken" type="password" placeholder="Enter admin token" autocomplete="current-password">
+        </div>
+        <button type="submit" id="adminGateSubmitBtn">Open Dashboard</button>
+      </form>
+      <div class="status" id="adminGateStatus" aria-live="polite" style="margin-top:1rem;"></div>
+    </div>
+  </section>
+
+  <div class="admin-shell" id="adminWorkspaceShell" hidden>
     <aside class="sidebar">
       <div class="brand">
         <div class="brand-mark">TSC</div>
@@ -598,10 +891,27 @@
         </div>
         <div class="topbar-actions">
           <button type="button" id="openAddBarberBtn">+ Add Barber</button>
-          <button type="button" class="secondary" id="refreshAdminBtn">Refresh</button>
           <button type="button" class="secondary" id="logoutAdminBtn">Logout</button>
           <a class="btn secondary" href="/">Back to public site</a>
         </div>
+      </div>
+
+      <nav class="focus-nav" aria-label="Workspace shortcuts">
+        <a class="focus-link" href="#overview">Overview</a>
+        <a class="focus-link" href="#barbers">Barbers</a>
+        <a class="focus-link" href="#bookings">Bookings</a>
+        <a class="focus-link" href="#notifications">Notifications</a>
+        <a class="focus-link" href="#settings">Settings</a>
+      </nav>
+
+      <div class="session-strip">
+        <div class="field">
+          <label for="adminToken">Admin Token</label>
+          <input id="adminToken" name="adminToken" type="password" placeholder="Active admin token" autocomplete="current-password">
+        </div>
+        <button type="button" id="loadBarbersBtn">Load Data</button>
+        <button type="button" class="secondary" id="refreshAdminBtn">Refresh</button>
+        <div class="status" id="adminStatus" aria-live="polite"></div>
       </div>
 
       <section class="section" id="overview">
@@ -713,16 +1023,6 @@
           </div>
         </div>
 
-        <div class="auth-strip">
-          <div class="field">
-            <label for="adminToken">Admin Token</label>
-            <input id="adminToken" name="adminToken" type="password" placeholder="Enter admin token" autocomplete="current-password">
-          </div>
-          <button type="button" id="loadBarbersBtn">Load Data</button>
-          <button type="button" class="secondary" id="resetAdminBtn">Reset Form</button>
-          <div class="status" id="adminStatus" aria-live="polite"></div>
-        </div>
-
         <div class="grid two">
           <article class="panel">
             <div class="toolbar">
@@ -750,6 +1050,7 @@
                     <th>Name</th>
                     <th>Role</th>
                     <th>Status</th>
+                    <th>Account</th>
                     <th>Phone</th>
                     <th>Verification</th>
                     <th>Availability</th>
@@ -757,20 +1058,22 @@
                   </tr>
                 </thead>
                 <tbody id="adminBarberList">
-                  <tr><td colspan="7" class="empty-state">No barbers yet. Create your first barber to start receiving bookings.</td></tr>
+                  <tr><td colspan="8" class="empty-state">No barbers yet. Create your first barber to start receiving bookings.</td></tr>
                 </tbody>
               </table>
             </div>
           </article>
 
-          <article class="panel" id="barberEditorPanel">
-            <div class="section-head" style="margin-bottom:0.8rem;">
-              <div>
-                <div class="eyebrow">Editor</div>
-                <h3 style="font-size:1.45rem;">Barber profile form</h3>
+          <details class="section-collapse" id="barberEditorShell" open>
+            <summary>
+              <div class="collapse-title">
+                <strong>Create or edit barber</strong>
+                <span>Use this form only when you need to change team data.</span>
               </div>
-            </div>
-
+              <span class="collapse-state">Editor</span>
+            </summary>
+            <div class="collapse-body">
+            <article class="panel" id="barberEditorPanel">
             <form class="form-layout" id="adminForm" novalidate>
               <input id="adminMode" type="hidden" value="create">
 
@@ -875,17 +1178,30 @@
                   </div>
                   <div class="access-preview">
                     <strong style="display:block;margin-bottom:0.35rem;">Invite URL</strong>
-                    <p class="status-copy" id="adminInvitePreview">Create or edit a barber to refresh the private invite link.</p>
+                    <div class="field" style="margin-top:0.65rem;">
+                      <label for="adminInviteUrl">Onboarding Link</label>
+                      <input id="adminInviteUrl" type="text" value="" readonly placeholder="Create or edit a barber to generate the invite link.">
+                    </div>
+                    <p class="status-copy" id="adminInvitePreview" style="margin-top:0.65rem;">Create or edit a barber to refresh the private invite link.</p>
+                    <p class="helper-copy" style="margin-top:0.65rem;">Admin does not create the barber password. Share the invite URL and access code so the barber can create their own email and password in onboarding.</p>
+                    <div class="access-preview-actions">
+                      <button type="button" class="secondary" id="adminOpenInviteBtn" disabled>Open Invite</button>
+                      <button type="button" class="secondary" id="adminCopyInviteBtn" disabled>Copy Link</button>
+                      <button type="button" class="secondary" id="adminCopyAccessBtn" disabled>Copy Code</button>
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div class="actions">
                 <button type="submit" id="submitAdminBtn">Save Barber</button>
+                <button type="button" class="secondary" id="resetAdminBtn">Reset Form</button>
                 <button type="button" class="secondary" id="cancelEditBtn" hidden>Cancel Edit</button>
               </div>
             </form>
           </article>
+          </div>
+          </details>
         </div>
       </section>
 
@@ -921,6 +1237,39 @@
         </div>
 
         <article class="panel">
+          <div class="table-toolbar">
+            <div class="field">
+              <label for="bookingSearch">Search</label>
+              <input id="bookingSearch" type="search" placeholder="Search client, email, service or notes">
+            </div>
+            <div class="field">
+              <label for="bookingStatusFilter">Status</label>
+              <select id="bookingStatusFilter">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="bookingBarberFilter">Barber</label>
+              <select id="bookingBarberFilter">
+                <option value="all">All barbers</option>
+              </select>
+            </div>
+            <button type="button" class="secondary" id="bookingResetFiltersBtn">Reset Filters</button>
+          </div>
+
+          <div class="table-meta">
+            <p id="bookingResultsMeta">No bookings loaded yet.</p>
+            <div class="pagination-controls">
+              <button type="button" class="secondary" id="bookingPrevPageBtn">Previous</button>
+              <span id="bookingPageInfo">Page 1 of 1</span>
+              <button type="button" class="secondary" id="bookingNextPageBtn">Next</button>
+            </div>
+          </div>
+
           <div class="table-wrap">
             <table>
               <thead>
@@ -930,10 +1279,11 @@
                   <th>Barber</th>
                   <th>Date</th>
                   <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="adminReservationFeed">
-                <tr><td colspan="5" class="empty-state">No bookings found.</td></tr>
+                <tr><td colspan="6" class="empty-state">No bookings found.</td></tr>
               </tbody>
             </table>
           </div>
@@ -941,87 +1291,117 @@
       </section>
 
       <section class="section" id="notifications">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Notifications</div>
-            <h3>Notifications</h3>
-          </div>
-        </div>
+        <details class="section-collapse">
+          <summary>
+            <div class="collapse-title">
+              <strong>Notifications</strong>
+              <span>Verification and delivery history.</span>
+            </div>
+            <span class="collapse-state">Secondary</span>
+          </summary>
+          <div class="collapse-body">
+            <div class="grid overview" style="margin-bottom:1rem;">
+              <article class="metric-card">
+                <span class="metric-label">Awaiting Verification</span>
+                <strong class="metric-value" id="overviewVerified">0</strong>
+                <p class="helper-copy">Need phone approval.</p>
+              </article>
+              <article class="metric-card">
+                <span class="metric-label">Alerts Sent Today</span>
+                <strong class="metric-value" id="notificationsTodayCard">0</strong>
+                <p class="helper-copy">Created in the last day.</p>
+              </article>
+              <article class="metric-card">
+                <span class="metric-label">Failed Notifications</span>
+                <strong class="metric-value" id="notificationsFailedCard">0</strong>
+                <p class="helper-copy">Need follow-up.</p>
+              </article>
+              <article class="metric-card">
+                <span class="metric-label">Deleted Profiles</span>
+                <strong class="metric-value" id="overviewDeleted">0</strong>
+                <p class="helper-copy">Archived and recoverable.</p>
+              </article>
+            </div>
 
-        <div class="grid overview" style="margin-bottom:1rem;">
-          <article class="metric-card">
-            <span class="metric-label">Awaiting Verification</span>
-            <strong class="metric-value" id="overviewVerified">0</strong>
-            <p class="helper-copy">Need phone approval.</p>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Alerts Sent Today</span>
-            <strong class="metric-value" id="notificationsTodayCard">0</strong>
-            <p class="helper-copy">Created in the last day.</p>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Failed Notifications</span>
-            <strong class="metric-value" id="notificationsFailedCard">0</strong>
-            <p class="helper-copy">Need follow-up.</p>
-          </article>
-          <article class="metric-card">
-            <span class="metric-label">Deleted Profiles</span>
-            <strong class="metric-value" id="overviewDeleted">0</strong>
-            <p class="helper-copy">Archived and recoverable.</p>
-          </article>
-        </div>
-
-        <article class="panel">
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Barber</th>
-                  <th>Booking</th>
-                  <th>Status</th>
-                  <th>Date</th>
-                </tr>
-              </thead>
-              <tbody id="adminNotificationFeed">
-                <tr><td colspan="5" class="empty-state">No notifications yet.</td></tr>
-              </tbody>
-            </table>
+            <article class="panel">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Barber</th>
+                      <th>Booking</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminNotificationFeed">
+                    <tr><td colspan="5" class="empty-state">No notifications yet.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
           </div>
-        </article>
+        </details>
       </section>
 
       <section class="section" id="settings">
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Settings</div>
-            <h3>Settings</h3>
+        <details class="section-collapse">
+          <summary>
+            <div class="collapse-title">
+              <strong>Settings</strong>
+              <span>Access routes and environment notes.</span>
+            </div>
+            <span class="collapse-state">Secondary</span>
+          </summary>
+          <div class="collapse-body">
+            <div class="settings-grid">
+              <article class="surface-card">
+                <div class="eyebrow">Access</div>
+                <p class="status-copy"><strong style="color:#fff;">Admin</strong><br>/admin</p>
+                <p class="status-copy" style="margin-top:0.8rem;"><strong style="color:#fff;">Barber invite</strong><br>/barber/onboard/:id</p>
+                <p class="status-copy" style="margin-top:0.8rem;"><strong style="color:#fff;">Barber login</strong><br>/barber</p>
+              </article>
+              <article class="surface-card">
+                <div class="eyebrow">Environment</div>
+                <p class="status-copy" id="protocolHint">Open `/admin` through localhost to use live API data. `file://` preview is visual only.</p>
+              </article>
+            </div>
+
+            <details class="help-card" style="margin-top:1rem;">
+              <summary>System notes</summary>
+              <p>Use the admin token to unlock CRUD, bookings, and notifications. Invite URLs are generated on barber creation and route the barber into the onboarding flow.</p>
+            </details>
           </div>
-        </div>
-
-        <div class="settings-grid">
-          <article class="surface-card">
-            <div class="eyebrow">Access</div>
-            <p class="status-copy"><strong style="color:#fff;">Admin</strong><br>/admin</p>
-            <p class="status-copy" style="margin-top:0.8rem;"><strong style="color:#fff;">Barber invite</strong><br>/barber/onboard/:id</p>
-            <p class="status-copy" style="margin-top:0.8rem;"><strong style="color:#fff;">Barber login</strong><br>/barber</p>
-          </article>
-          <article class="surface-card">
-            <div class="eyebrow">Environment</div>
-            <p class="status-copy" id="protocolHint">Open `/admin` through localhost to use live API data. `file://` preview is visual only.</p>
-          </article>
-        </div>
-
-        <details class="help-card" style="margin-top:1rem;">
-          <summary>System notes</summary>
-          <p>Use the admin token to unlock CRUD, bookings, and notifications. Invite URLs are generated on barber creation and route the barber into the onboarding flow.</p>
         </details>
       </section>
     </main>
   </div>
 
+  <div class="drawer-backdrop" id="bookingDrawerBackdrop" hidden></div>
+  <aside class="detail-drawer" id="bookingDetailDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div>
+        <div class="eyebrow">Booking Detail</div>
+        <h4 id="bookingDrawerTitle">Booking information</h4>
+        <p class="status-copy" id="bookingDrawerSubtitle">Select a booking to review the full request.</p>
+      </div>
+      <button type="button" class="secondary drawer-close" id="bookingDrawerCloseBtn">Close</button>
+    </div>
+    <div class="drawer-body" id="bookingDrawerBody">
+      <div class="detail-card full">
+        <strong>No booking selected yet.</strong>
+      </div>
+    </div>
+  </aside>
+
 <script>
 const adminForm = document.getElementById('adminForm');
+const adminAccessGate = document.getElementById('adminAccessGate');
+const adminWorkspaceShell = document.getElementById('adminWorkspaceShell');
+const adminGateForm = document.getElementById('adminGateForm');
+const adminGateTokenField = document.getElementById('adminGateToken');
+const adminGateStatus = document.getElementById('adminGateStatus');
 const adminTokenField = document.getElementById('adminToken');
 const adminNameField = document.getElementById('adminName');
 const adminRoleField = document.getElementById('adminRole');
@@ -1064,10 +1444,29 @@ const notificationsTodayCard = document.getElementById('notificationsTodayCard')
 const notificationsFailedCard = document.getElementById('notificationsFailedCard');
 const pendingActionsList = document.getElementById('pendingActionsList');
 const adminReservationFeed = document.getElementById('adminReservationFeed');
+const bookingSearchField = document.getElementById('bookingSearch');
+const bookingStatusFilter = document.getElementById('bookingStatusFilter');
+const bookingBarberFilter = document.getElementById('bookingBarberFilter');
+const bookingResetFiltersBtn = document.getElementById('bookingResetFiltersBtn');
+const bookingResultsMeta = document.getElementById('bookingResultsMeta');
+const bookingPrevPageBtn = document.getElementById('bookingPrevPageBtn');
+const bookingNextPageBtn = document.getElementById('bookingNextPageBtn');
+const bookingPageInfo = document.getElementById('bookingPageInfo');
+const bookingDrawerBackdrop = document.getElementById('bookingDrawerBackdrop');
+const bookingDetailDrawer = document.getElementById('bookingDetailDrawer');
+const bookingDrawerTitle = document.getElementById('bookingDrawerTitle');
+const bookingDrawerSubtitle = document.getElementById('bookingDrawerSubtitle');
+const bookingDrawerBody = document.getElementById('bookingDrawerBody');
+const bookingDrawerCloseBtn = document.getElementById('bookingDrawerCloseBtn');
 const adminNotificationFeed = document.getElementById('adminNotificationFeed');
 const teamStatusList = document.getElementById('teamStatusList');
 const protocolHint = document.getElementById('protocolHint');
 const adminInvitePreview = document.getElementById('adminInvitePreview');
+const adminInviteUrlField = document.getElementById('adminInviteUrl');
+const adminOpenInviteBtn = document.getElementById('adminOpenInviteBtn');
+const adminCopyInviteBtn = document.getElementById('adminCopyInviteBtn');
+const adminCopyAccessBtn = document.getElementById('adminCopyAccessBtn');
+const barberEditorShell = document.getElementById('barberEditorShell');
 const ADMIN_SESSION_KEY = 'sharpcut-admin-token';
 let editingBarberId = null;
 let cachedBarbers = [];
@@ -1078,6 +1477,11 @@ let cachedDashboardMetrics = {
   confirmedReservations: 0,
   rejectedReservations: 0
 };
+let isAdminAuthenticated = false;
+let invitePreviewBarber = null;
+let bookingCurrentPage = 1;
+const BOOKING_PAGE_SIZE = 8;
+let selectedBookingId = null;
 
 function getAdminHeaders() {
   const token = adminTokenField.value.trim();
@@ -1089,6 +1493,11 @@ function setAdminStatus(message, isError = false) {
   adminStatus.classList.toggle('error', isError);
 }
 
+function setGateStatus(message, isError = false) {
+  adminGateStatus.textContent = message;
+  adminGateStatus.classList.toggle('error', isError);
+}
+
 function saveAdminSession() {
   const token = adminTokenField.value.trim();
   if (!token) return;
@@ -1097,6 +1506,17 @@ function saveAdminSession() {
 
 function clearAdminSession() {
   sessionStorage.removeItem(ADMIN_SESSION_KEY);
+}
+
+function setAdminAuthenticated(nextState) {
+  isAdminAuthenticated = nextState;
+  adminAccessGate.hidden = nextState;
+  adminWorkspaceShell.hidden = !nextState;
+}
+
+function syncAdminTokenFields(token) {
+  adminTokenField.value = token;
+  adminGateTokenField.value = token;
 }
 
 function escapeHtml(value) {
@@ -1221,13 +1641,143 @@ function getOnboardingUrl(barber) {
   return barber.onboardingUrl || `${window.location.origin}/barber/onboard/${barber.id}`;
 }
 
-function updateInvitePreview(barber = null) {
-  if (!barber) {
+function updateInvitePreview(barber = invitePreviewBarber) {
+  invitePreviewBarber = barber || null;
+
+  if (!invitePreviewBarber) {
+    adminInviteUrlField.value = '';
     adminInvitePreview.textContent = 'Create or edit a barber to refresh the private invite link.';
+    adminOpenInviteBtn.disabled = true;
+    adminCopyInviteBtn.disabled = true;
+    adminCopyAccessBtn.disabled = true;
     return;
   }
 
-  adminInvitePreview.textContent = `${getOnboardingUrl(barber)} · ${barber.hasAccount ? 'Account active' : 'Invite pending'}`;
+  adminInviteUrlField.value = getOnboardingUrl(invitePreviewBarber);
+  adminInvitePreview.textContent = invitePreviewBarber.hasAccount
+    ? 'Account active. The admin can still open or copy the onboarding link at any time.'
+    : 'Invite pending. Share this link and the access code with the barber to complete account setup.';
+  adminOpenInviteBtn.disabled = false;
+  adminCopyInviteBtn.disabled = false;
+  adminCopyAccessBtn.disabled = false;
+}
+
+function getReservationStatusClass(status) {
+  if (status === 'confirmed') return 'confirmed';
+  if (status === 'pending') return 'pending';
+  if (status === 'rejected' || status === 'cancelled') return 'rejected';
+  return 'active';
+}
+
+function formatReservationClient(reservation) {
+  return `${reservation.customer?.firstName || ''} ${reservation.customer?.lastName || ''}`.trim() || 'Unknown client';
+}
+
+function formatReservationDateTime(reservation) {
+  return `${reservation.date || '—'} ${reservation.time || ''}`.trim();
+}
+
+function populateBookingBarberFilter() {
+  const previousValue = bookingBarberFilter.value || 'all';
+  const barberOptions = Array.from(new Set(cachedReservations.map((reservation) => reservation.barberId).filter(Boolean)))
+    .map((barberId) => {
+      const barber = cachedBarbers.find((item) => item.id === barberId);
+      return {
+        id: barberId,
+        label: barber?.name || barberId
+      };
+    })
+    .sort((left, right) => left.label.localeCompare(right.label));
+
+  bookingBarberFilter.innerHTML = `
+    <option value="all">All barbers</option>
+    ${barberOptions.map((option) => `<option value="${escapeHtml(option.id)}">${escapeHtml(option.label)}</option>`).join('')}
+  `;
+  bookingBarberFilter.value = barberOptions.some((option) => option.id === previousValue) ? previousValue : 'all';
+}
+
+function getFilteredReservations() {
+  const search = bookingSearchField.value.trim().toLowerCase();
+  const status = bookingStatusFilter.value;
+  const barberId = bookingBarberFilter.value;
+
+  return cachedReservations.filter((reservation) => {
+    const matchesStatus = status === 'all' ? true : reservation.status === status;
+    const matchesBarber = barberId === 'all' ? true : reservation.barberId === barberId;
+    const haystack = [
+      formatReservationClient(reservation),
+      reservation.customer?.email || '',
+      reservation.customer?.phone || '',
+      reservation.service || '',
+      reservation.barberName || '',
+      reservation.notes || '',
+      reservation.date || '',
+      reservation.time || ''
+    ].join(' ').toLowerCase();
+    return matchesStatus && matchesBarber && (!search || haystack.includes(search));
+  });
+}
+
+function openBookingDrawer(reservation) {
+  selectedBookingId = reservation.id;
+  bookingDrawerTitle.textContent = formatReservationClient(reservation);
+  bookingDrawerSubtitle.textContent = `${reservation.service} · ${reservation.barberName || 'First available'} · ${formatReservationDateTime(reservation)}`;
+  bookingDrawerBody.innerHTML = `
+    <div class="detail-grid">
+      <div class="detail-card">
+        <label>Booking ID</label>
+        <strong>${escapeHtml(reservation.id || '—')}</strong>
+      </div>
+      <div class="detail-card">
+        <label>Status</label>
+        <strong><span class="status-badge ${getReservationStatusClass(reservation.status)}">${escapeHtml(reservation.status || 'pending')}</span></strong>
+      </div>
+      <div class="detail-card">
+        <label>Customer</label>
+        <strong>${escapeHtml(formatReservationClient(reservation))}</strong>
+      </div>
+      <div class="detail-card">
+        <label>Contact</label>
+        <strong>${escapeHtml(reservation.customer?.email || 'No email')}<br>${escapeHtml(reservation.customer?.phone || 'No phone')}</strong>
+      </div>
+      <div class="detail-card">
+        <label>Barber</label>
+        <strong>${escapeHtml(reservation.barberName || 'First available')}</strong>
+      </div>
+      <div class="detail-card">
+        <label>Service</label>
+        <strong>${escapeHtml(reservation.service || '—')}<br>${escapeHtml(String(reservation.durationMinutes || '—'))} min</strong>
+      </div>
+      <div class="detail-card">
+        <label>Appointment</label>
+        <strong>${escapeHtml(reservation.date || '—')}<br>${escapeHtml(reservation.time || '—')}</strong>
+      </div>
+      <div class="detail-card">
+        <label>Timeline</label>
+        <strong>Created: ${escapeHtml(reservation.createdAt || '—')}<br>Updated: ${escapeHtml(reservation.updatedAt || '—')}</strong>
+      </div>
+      <div class="detail-card full">
+        <label>Client Notes</label>
+        <strong>${escapeHtml(reservation.notes || 'No notes added.')}</strong>
+      </div>
+    </div>
+  `;
+  bookingDrawerBackdrop.hidden = false;
+  bookingDrawerBackdrop.classList.add('is-visible');
+  bookingDetailDrawer.classList.add('is-open');
+  bookingDetailDrawer.setAttribute('aria-hidden', 'false');
+}
+
+function closeBookingDrawer() {
+  selectedBookingId = null;
+  bookingDetailDrawer.classList.remove('is-open');
+  bookingDetailDrawer.setAttribute('aria-hidden', 'true');
+  bookingDrawerBackdrop.classList.remove('is-visible');
+  window.setTimeout(() => {
+    if (!bookingDetailDrawer.classList.contains('is-open')) {
+      bookingDrawerBackdrop.hidden = true;
+    }
+  }, 220);
 }
 
 function updateOverview(barbers = []) {
@@ -1320,31 +1870,52 @@ function renderOverviewBookings(reservations) {
 
   overviewRecentBookings.innerHTML = reservations.slice(0, 5).map((reservation) => `
     <tr>
-      <td>${escapeHtml(reservation.customer.firstName)} ${escapeHtml(reservation.customer.lastName)}</td>
+      <td>${escapeHtml(formatReservationClient(reservation))}</td>
       <td>${escapeHtml(reservation.service)}</td>
       <td>${escapeHtml(reservation.barberName || 'First available')}</td>
       <td>${escapeHtml(reservation.date)} ${escapeHtml(reservation.time)}</td>
-      <td><span class="status-badge ${reservation.status === 'pending' ? 'active' : reservation.status === 'confirmed' ? 'active' : 'deleted'}">${escapeHtml(reservation.status)}</span></td>
+      <td><span class="status-badge ${getReservationStatusClass(reservation.status)}">${escapeHtml(reservation.status)}</span></td>
     </tr>
   `).join('');
 }
 
 function renderAdminReservations(reservations) {
-  if (!reservations.length) {
-    adminReservationFeed.innerHTML = `<tr><td colspan="5" class="empty-state">No bookings found.</td></tr>`;
+  const filteredReservations = getFilteredReservations();
+  const totalPages = Math.max(1, Math.ceil(filteredReservations.length / BOOKING_PAGE_SIZE));
+  if (bookingCurrentPage > totalPages) {
+    bookingCurrentPage = totalPages;
+  }
+
+  const pageStart = (bookingCurrentPage - 1) * BOOKING_PAGE_SIZE;
+  const pageReservations = filteredReservations.slice(pageStart, pageStart + BOOKING_PAGE_SIZE);
+
+  bookingResultsMeta.textContent = filteredReservations.length
+    ? `${filteredReservations.length} booking${filteredReservations.length > 1 ? 's' : ''} found`
+    : 'No bookings match the current filters.';
+  bookingPageInfo.textContent = `Page ${bookingCurrentPage} of ${totalPages}`;
+  bookingPrevPageBtn.disabled = bookingCurrentPage <= 1;
+  bookingNextPageBtn.disabled = bookingCurrentPage >= totalPages;
+
+  if (!pageReservations.length) {
+    adminReservationFeed.innerHTML = `<tr><td colspan="6" class="empty-state">No bookings found.</td></tr>`;
     return;
   }
 
-  adminReservationFeed.innerHTML = reservations.map((reservation) => `
+  adminReservationFeed.innerHTML = pageReservations.map((reservation) => `
     <tr>
       <td>
-        <strong>${escapeHtml(reservation.customer.firstName)} ${escapeHtml(reservation.customer.lastName)}</strong>
+        <strong>${escapeHtml(formatReservationClient(reservation))}</strong>
         <div class="status-copy">${escapeHtml(reservation.customer.email)}</div>
       </td>
       <td>${escapeHtml(reservation.service)}</td>
       <td>${escapeHtml(reservation.barberName || 'First available')}</td>
       <td>${escapeHtml(reservation.date)}<br><span class="status-copy">${escapeHtml(reservation.time)}</span></td>
-      <td><span class="status-badge ${reservation.status === 'pending' ? 'active' : reservation.status === 'confirmed' ? 'active' : 'deleted'}">${escapeHtml(reservation.status)}</span></td>
+      <td><span class="status-badge ${getReservationStatusClass(reservation.status)}">${escapeHtml(reservation.status)}</span></td>
+      <td>
+        <div class="row-actions">
+          <button type="button" class="secondary" data-booking-action="view" data-reservation-id="${escapeHtml(reservation.id)}">View</button>
+        </div>
+      </td>
     </tr>
   `).join('');
 }
@@ -1360,7 +1931,7 @@ function renderAdminNotifications(notifications) {
       <td>${escapeHtml(notification.type.replaceAll('_', ' '))}</td>
       <td>${escapeHtml(notification.metadata?.customerName || notification.barberId || 'System')}</td>
       <td>${escapeHtml(notification.metadata?.reservationId || '—')}</td>
-      <td><span class="status-badge ${notification.status === 'failed' ? 'deleted' : 'active'}">${escapeHtml(notification.status)}</span></td>
+      <td><span class="status-badge ${notification.status === 'failed' ? 'rejected' : 'confirmed'}">${escapeHtml(notification.status)}</span></td>
       <td>${escapeHtml(notification.createdAt || '—')}</td>
     </tr>
   `).join('');
@@ -1398,6 +1969,13 @@ function resetAdminEditor(message = 'Form reset.') {
   setAdminStatus(message);
 }
 
+function openBarberEditor() {
+  if (barberEditorShell) {
+    barberEditorShell.open = true;
+  }
+  document.getElementById('barberEditorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function fillAdminForm(barber) {
   adminNameField.value = barber.name || '';
   adminRoleField.value = barber.role || '';
@@ -1428,7 +2006,7 @@ function fillAdminForm(barber) {
 
 function renderBarbers(barbers) {
   if (!barbers.length) {
-    adminBarberList.innerHTML = `<tr><td colspan="7" class="empty-state">No barbers found. Create your first barber to start receiving bookings.</td></tr>`;
+    adminBarberList.innerHTML = `<tr><td colspan="8" class="empty-state">No barbers found. Create your first barber to start receiving bookings.</td></tr>`;
     return;
   }
 
@@ -1440,12 +2018,19 @@ function renderBarbers(barbers) {
       </td>
       <td>${escapeHtml(barber.role)}</td>
       <td><span class="status-badge ${barber.status === 'active' ? 'active' : 'deleted'}">${escapeHtml(barber.status)}</span></td>
+      <td>
+        ${barber.hasAccount ? '<span class="tiny-badge success">Active</span>' : '<span class="tiny-badge info">Invite pending</span>'}
+        <div class="status-copy" style="margin-top:0.45rem;">
+          <a class="link-inline" href="${escapeHtml(getOnboardingUrl(barber))}" target="_blank" rel="noopener">Open invite link</a>
+        </div>
+      </td>
       <td>${escapeHtml(barber.maskedPhoneNumber || 'No number')}</td>
       <td>${barber.phoneVerified ? '<span class="tiny-badge success">Verified</span>' : '<span class="tiny-badge danger">Pending</span>'}</td>
       <td>${escapeHtml(formatAvailabilitySummary(barber.availability || {}))}</td>
       <td>
         <div class="row-actions">
           <button type="button" data-action="edit" data-barber-id="${escapeHtml(barber.id)}">Edit</button>
+          <button type="button" class="secondary" data-action="open-invite" data-barber-id="${escapeHtml(barber.id)}">Open Invite</button>
           <button type="button" class="secondary" data-action="copy-invite" data-barber-id="${escapeHtml(barber.id)}">Copy Link</button>
           <button type="button" class="secondary" data-action="copy-access" data-barber-id="${escapeHtml(barber.id)}">Copy Code</button>
           ${barber.status === 'active'
@@ -1493,7 +2078,10 @@ async function copyText(value, successMessage) {
 
 function logoutAdmin() {
   clearAdminSession();
-  adminTokenField.value = '';
+  syncAdminTokenFields('');
+  invitePreviewBarber = null;
+  bookingCurrentPage = 1;
+  closeBookingDrawer();
   cachedBarbers = [];
   cachedReservations = [];
   cachedNotifications = [];
@@ -1510,6 +2098,8 @@ function logoutAdmin() {
   renderPendingActions();
   updateOverview([]);
   resetAdminEditor('Admin session closed.');
+  setAdminAuthenticated(false);
+  setGateStatus('Enter the admin token to unlock the dashboard.');
 }
 
 async function loadAdminBarbers() {
@@ -1542,7 +2132,9 @@ async function loadAdminBarbers() {
     cachedReservations = reservationsPayload.reservations || [];
     cachedNotifications = notificationsPayload.notifications || [];
 
+    bookingCurrentPage = 1;
     applyBarberFilters();
+    populateBookingBarberFilter();
     renderPendingActions();
     renderTeamStatus(cachedBarbers);
     renderOverviewBookings(dashboardPayload.recentReservations || cachedReservations);
@@ -1550,19 +2142,41 @@ async function loadAdminBarbers() {
     renderAdminNotifications(cachedNotifications);
     updateOverview(cachedBarbers);
     saveAdminSession();
+    syncAdminTokenFields(adminTokenField.value.trim());
+    setAdminAuthenticated(true);
+    setGateStatus('');
     setAdminStatus('Admin workspace loaded.');
   } catch (error) {
     setAdminStatus(error.message, true);
+    if (!isAdminAuthenticated) {
+      setAdminAuthenticated(false);
+      setGateStatus(error.message, true);
+    }
   }
 }
 
+adminGateForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const token = adminGateTokenField.value.trim();
+
+  if (!token) {
+    setGateStatus('Enter the admin token first.', true);
+    adminGateTokenField.focus();
+    return;
+  }
+
+  syncAdminTokenFields(token);
+  setGateStatus('Checking access...');
+  await loadAdminBarbers();
+});
+
 openAddBarberBtn.addEventListener('click', () => {
-  document.getElementById('barberEditorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  openBarberEditor();
   adminNameField.focus();
 });
 
 barberFilterAddBtn.addEventListener('click', () => {
-  document.getElementById('barberEditorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  openBarberEditor();
   adminNameField.focus();
 });
 
@@ -1571,7 +2185,50 @@ refreshAdminBtn.addEventListener('click', loadAdminBarbers);
 logoutAdminBtn.addEventListener('click', logoutAdmin);
 barberSearchField.addEventListener('input', applyBarberFilters);
 barberStatusFilter.addEventListener('change', applyBarberFilters);
+bookingSearchField.addEventListener('input', () => {
+  bookingCurrentPage = 1;
+  renderAdminReservations(cachedReservations);
+});
+bookingStatusFilter.addEventListener('change', () => {
+  bookingCurrentPage = 1;
+  renderAdminReservations(cachedReservations);
+});
+bookingBarberFilter.addEventListener('change', () => {
+  bookingCurrentPage = 1;
+  renderAdminReservations(cachedReservations);
+});
+bookingResetFiltersBtn.addEventListener('click', () => {
+  bookingSearchField.value = '';
+  bookingStatusFilter.value = 'all';
+  bookingBarberFilter.value = 'all';
+  bookingCurrentPage = 1;
+  renderAdminReservations(cachedReservations);
+});
+bookingPrevPageBtn.addEventListener('click', () => {
+  if (bookingCurrentPage <= 1) return;
+  bookingCurrentPage -= 1;
+  renderAdminReservations(cachedReservations);
+});
+bookingNextPageBtn.addEventListener('click', () => {
+  bookingCurrentPage += 1;
+  renderAdminReservations(cachedReservations);
+});
+bookingDrawerCloseBtn.addEventListener('click', closeBookingDrawer);
+bookingDrawerBackdrop.addEventListener('click', closeBookingDrawer);
 adminTokenField.addEventListener('change', saveAdminSession);
+adminOpenInviteBtn.addEventListener('click', () => {
+  if (!invitePreviewBarber) return;
+  window.open(getOnboardingUrl(invitePreviewBarber), '_blank', 'noopener');
+  setAdminStatus(`Opened onboarding invite for ${invitePreviewBarber.name}.`);
+});
+adminCopyInviteBtn.addEventListener('click', async () => {
+  if (!invitePreviewBarber) return;
+  await copyText(getOnboardingUrl(invitePreviewBarber), `Invite URL copied for ${invitePreviewBarber.name}.`);
+});
+adminCopyAccessBtn.addEventListener('click', async () => {
+  if (!invitePreviewBarber) return;
+  await copyText(invitePreviewBarber.accessCode || '', `Access code copied for ${invitePreviewBarber.name}.`);
+});
 
 resetAdminBtn.addEventListener('click', () => {
   resetAdminEditor();
@@ -1579,6 +2236,9 @@ resetAdminBtn.addEventListener('click', () => {
 
 cancelEditBtn.addEventListener('click', () => {
   resetAdminEditor('Edit cancelled.');
+  if (barberEditorShell) {
+    barberEditorShell.open = false;
+  }
 });
 
 adminForm.addEventListener('submit', async (event) => {
@@ -1673,6 +2333,12 @@ adminBarberList.addEventListener('click', async (event) => {
     return;
   }
 
+  if (action === 'open-invite') {
+    window.open(getOnboardingUrl(barber), '_blank', 'noopener');
+    setAdminStatus(`Opened onboarding invite for ${barber.name}. Share the access code so the barber can create their password.`);
+    return;
+  }
+
   if (action === 'copy-access') {
     await copyText(barber.accessCode || '', `Access code copied for ${barber.name}.`);
     return;
@@ -1680,7 +2346,7 @@ adminBarberList.addEventListener('click', async (event) => {
 
   if (action === 'edit') {
     fillAdminForm(barber);
-    document.getElementById('barberEditorPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    openBarberEditor();
     return;
   }
 
@@ -1711,17 +2377,37 @@ adminBarberList.addEventListener('click', async (event) => {
   }
 });
 
+adminReservationFeed.addEventListener('click', (event) => {
+  const actionButton = event.target.closest('button[data-booking-action]');
+  if (!actionButton) return;
+
+  const reservation = cachedReservations.find((item) => item.id === actionButton.dataset.reservationId);
+  if (!reservation) {
+    setAdminStatus('Unable to find that booking in the current list.', true);
+    return;
+  }
+
+  openBookingDrawer(reservation);
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && bookingDetailDrawer.classList.contains('is-open')) {
+    closeBookingDrawer();
+  }
+});
+
 if (window.location.protocol === 'file:') {
   protocolHint.textContent = 'You are viewing the admin in file mode. Open /admin through localhost to use live data and actions.';
 }
 
 const savedAdminToken = sessionStorage.getItem(ADMIN_SESSION_KEY);
 if (savedAdminToken) {
-  adminTokenField.value = savedAdminToken;
+  syncAdminTokenFields(savedAdminToken);
 }
 
 applyScheduleDefaults();
 updateInvitePreview();
+populateBookingBarberFilter();
 renderPendingActions();
 renderBarbers([]);
 renderTeamStatus([]);
@@ -1732,6 +2418,9 @@ updateOverview([]);
 
 if (savedAdminToken && window.location.protocol !== 'file:') {
   loadAdminBarbers();
+} else {
+  setAdminAuthenticated(false);
+  setGateStatus('Enter the admin token to unlock the dashboard.');
 }
 </script>
 </body>
