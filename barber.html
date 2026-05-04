@@ -233,6 +233,67 @@
     gap: 1rem;
     margin: 0 0 1.5rem;
   }
+
+  .workspace-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .workspace-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.72rem 0.95rem;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 1.6px;
+  }
+
+  .workspace-link:hover,
+  .workspace-link:focus-visible {
+    color: #fff;
+    border-color: var(--gold);
+    outline: none;
+  }
+
+  .secondary-layout {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  details.portal-collapse {
+    border: 1px solid var(--border);
+    background: rgba(23, 19, 13, 0.92);
+    padding: 1rem 1.2rem;
+  }
+
+  details.portal-collapse summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  details.portal-collapse summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .collapse-copy {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .collapse-body {
+    margin-top: 1rem;
+  }
   .metric-card {
     border: 1px solid var(--border);
     padding: 1rem;
@@ -259,14 +320,106 @@
   }
   .section-toolbar {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 220px;
+    grid-template-columns: minmax(0, 1fr) 220px 220px;
     gap: 0.85rem;
     margin: 1rem 0 1.2rem;
   }
 
+  .hub-card {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+  }
+
+  table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    padding: 0.95rem 0.85rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(184, 149, 58, 0.14);
+  }
+
+  th {
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  td {
+    line-height: 1.6;
+  }
+
+  .table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  .table-actions a,
+  .table-actions button {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .workspace-shell[hidden],
+  .hub-card[hidden] {
+    display: none !important;
+  }
+
+  .agenda-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .agenda-highlight {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    padding: 1.1rem;
+  }
+
+  .agenda-highlight strong {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 1.8rem;
+    font-weight: normal;
+    margin: 0.65rem 0 0.45rem;
+  }
+
+  .agenda-list {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .agenda-item {
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.02);
+    padding: 1rem;
+  }
+
+  .agenda-item p {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-top: 0.4rem;
+  }
+
   @media (max-width: 860px) {
     body { padding: 1.2rem; }
-    .topbar, .layout, .checkbox-grid, .metric-strip, .section-toolbar { grid-template-columns: 1fr; }
+    .topbar, .layout, .checkbox-grid, .metric-strip, .section-toolbar, .secondary-layout, .agenda-grid { grid-template-columns: 1fr; }
     .topbar { display: grid; }
   }
 </style>
@@ -281,32 +434,15 @@
       </div>
       <div class="topbar-actions">
         <a href="/">Back to public site</a>
+        <a href="/admin">Manage barbers</a>
         <div class="utility-pill">Session <strong id="barberSessionState">Locked</strong></div>
         <button type="button" class="action-secondary" id="refreshBarberBtn">Refresh</button>
         <button type="button" class="action-secondary" id="logoutBarberBtn">Logout</button>
       </div>
     </div>
 
-    <div class="metric-strip">
-      <div class="metric-card">
-        <span>Pending requests</span>
-        <strong id="barberPendingCount">0</strong>
-        <p>Requests waiting for your decision.</p>
-      </div>
-      <div class="metric-card">
-        <span>Confirmed</span>
-        <strong id="barberConfirmedCount">0</strong>
-        <p>Appointments already accepted by you.</p>
-      </div>
-      <div class="metric-card">
-        <span>Notifications</span>
-        <strong id="barberNotificationCount">0</strong>
-        <p>Recent verification and booking alerts.</p>
-      </div>
-    </div>
-
     <div class="layout">
-      <div class="card">
+      <div class="card" id="loginCard">
         <h2 id="signInHeading">Sign In</h2>
         <p class="subtext" id="signInCopy">Use your barber account credentials. If the admin has just invited you, finish account setup from the onboarding link first.</p>
         <form class="form" id="barberAccessForm" novalidate>
@@ -327,9 +463,61 @@
         </form>
       </div>
 
-      <div class="card">
+      <div class="card hub-card" id="barberDirectoryCard" hidden>
+        <div>
+          <h2>Barber Directory</h2>
+          <p class="subtext">Use this cleaner access list to open the right barber page. Team creation, edit, and remove actions stay in the admin dashboard.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Access</th>
+              </tr>
+            </thead>
+            <tbody id="barberDirectoryList">
+              <tr>
+                <td colspan="3">Open this page through `localhost` to load the active barber list.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="workspace-shell" id="privateWorkspaceShell" hidden>
+    <nav class="workspace-nav" aria-label="Barber workspace shortcuts">
+      <a class="workspace-link" href="#loginCard">Access</a>
+      <a class="workspace-link" href="#availabilityCard">Availability</a>
+      <a class="workspace-link" href="#requestsCard">Requests</a>
+      <a class="workspace-link" href="#verificationCard">Verification</a>
+      <a class="workspace-link" href="#notificationsCard">Notifications</a>
+    </nav>
+
+    <div class="metric-strip">
+      <div class="metric-card">
+        <span>Pending requests</span>
+        <strong id="barberPendingCount">0</strong>
+        <p>Requests waiting for your decision.</p>
+      </div>
+      <div class="metric-card">
+        <span>Confirmed</span>
+        <strong id="barberConfirmedCount">0</strong>
+        <p>Appointments already accepted by you.</p>
+      </div>
+      <div class="metric-card">
+        <span>Notifications</span>
+        <strong id="barberNotificationCount">0</strong>
+        <p>Recent verification and booking alerts.</p>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="card" id="availabilityCard">
         <h3>My Availability</h3>
-        <p class="subtext">Once connected, update your regular work days and any blocked dates or time slots.</p>
+        <p class="subtext">Update your work days, hours, breaks, and blocked slots.</p>
         <form class="form" id="barberAvailabilityForm" novalidate>
           <div class="field">
             <label>Working Days</label>
@@ -376,44 +564,104 @@
             <label for="barberBlockedDates">Blocked Dates</label>
             <input id="barberBlockedDates" name="barberBlockedDates" type="text" placeholder="2026-05-01, 2026-05-12">
           </div>
+          <div class="field" style="margin-top:0.5rem;">
+            <label>Time Off Tools</label>
+            <div class="checkbox-grid">
+              <div class="field">
+                <label for="vacationStartDate">Vacation Start</label>
+                <input id="vacationStartDate" type="date">
+              </div>
+              <div class="field">
+                <label for="vacationEndDate">Vacation End</label>
+                <input id="vacationEndDate" type="date">
+              </div>
+              <div class="field">
+                <label for="specialBlockedDate">Extra Blocked Date</label>
+                <input id="specialBlockedDate" type="date">
+              </div>
+              <div class="field">
+                <label for="specialBlockedTime">Recurring Blocked Time</label>
+                <input id="specialBlockedTime" type="time">
+              </div>
+            </div>
+            <div class="reservation-actions" style="margin-top:0.85rem;">
+              <button type="button" class="action-secondary" id="applyVacationRangeBtn">Add Vacation Range</button>
+              <button type="button" class="action-secondary" id="addSpecialDateBtn">Add Date Off</button>
+              <button type="button" class="action-secondary" id="addSpecialTimeBtn">Add Blocked Time</button>
+            </div>
+          </div>
           <div class="status" id="barberAvailabilityStatus" aria-live="polite"></div>
           <button type="submit">Save My Availability</button>
         </form>
       </div>
     </div>
 
-    <div class="card" style="margin-top:1.5rem;">
-      <h3>Current Profile Snapshot</h3>
-      <p class="subtext">This section confirms the profile and blocked slots currently stored in the backend.</p>
-      <div class="summary" id="barberSummary">
-        <div class="snapshot">
-          <strong>No barber data loaded</strong>
-          <p>Sign in with your access code to load your private profile and schedule.</p>
+    <div class="secondary-layout">
+      <details class="portal-collapse" id="profileCard" open>
+        <summary>
+          <div>
+            <h3>Profile snapshot</h3>
+            <p class="collapse-copy">Quick reference for the profile stored in the backend.</p>
+          </div>
+          <span class="collapse-copy">Overview</span>
+        </summary>
+        <div class="collapse-body">
+          <div class="summary" id="barberSummary">
+            <div class="snapshot">
+              <strong>No barber data loaded</strong>
+              <p>Sign in to load your private profile and schedule.</p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="portal-collapse" id="verificationCard" open>
+        <summary>
+          <div>
+            <h3>Phone verification</h3>
+            <p class="collapse-copy">Activate booking notifications for your number.</p>
+          </div>
+          <span class="collapse-copy">Security</span>
+        </summary>
+        <div class="collapse-body">
+          <div class="verification-box">
+            <div class="status" id="phoneVerificationStatus" aria-live="polite">Sign in to check your phone verification status.</div>
+            <form class="form" id="phoneVerificationForm" novalidate>
+              <div class="field">
+                <label for="phoneVerificationCode">Verification Code</label>
+                <input id="phoneVerificationCode" name="phoneVerificationCode" type="text" placeholder="Enter the 6-digit code">
+              </div>
+              <div class="reservation-actions">
+                <button type="submit">Verify Phone</button>
+                <button type="button" class="action-secondary" id="resendPhoneVerificationBtn">Resend Code</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="card" style="margin-top:1.5rem;" id="upcomingCard">
+      <h3>Upcoming Schedule</h3>
+      <p class="subtext">Keep the next confirmed appointments in view before you handle new requests.</p>
+      <div class="agenda-grid">
+        <div class="agenda-highlight" id="nextAppointmentHighlight">
+          <div class="eyebrow">Next Appointment</div>
+          <strong>No confirmed bookings yet</strong>
+          <p>Your next accepted appointment will appear here as soon as you confirm one.</p>
+        </div>
+        <div class="agenda-list" id="upcomingReservationList">
+          <div class="agenda-item">
+            <strong>No upcoming schedule yet</strong>
+            <p>Accepted bookings for the next days will appear here.</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="card" style="margin-top:1.5rem;">
-      <h3>Phone Verification</h3>
-      <p class="subtext">Your mobile number must be verified before the system starts dispatching reservation notifications to it.</p>
-      <div class="verification-box">
-        <div class="status" id="phoneVerificationStatus" aria-live="polite">Sign in to check your phone verification status.</div>
-        <form class="form" id="phoneVerificationForm" novalidate>
-          <div class="field">
-            <label for="phoneVerificationCode">Verification Code</label>
-            <input id="phoneVerificationCode" name="phoneVerificationCode" type="text" placeholder="Enter the 6-digit code">
-          </div>
-          <div class="reservation-actions">
-            <button type="submit">Verify Phone</button>
-            <button type="button" class="action-secondary" id="resendPhoneVerificationBtn">Resend Code</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1.5rem;">
+    <div class="card" style="margin-top:1.5rem;" id="requestsCard">
       <h3>Booking Requests</h3>
-      <p class="subtext">Pending requests stay visible here until you confirm or reject them. Once a request is confirmed, that slot becomes unavailable to new clients.</p>
+      <p class="subtext">Review and accept or reject live client requests.</p>
       <div class="section-toolbar">
         <div class="field">
           <label for="reservationSearch">Search Client</label>
@@ -428,6 +676,19 @@
             <option value="rejected">Rejected</option>
           </select>
         </div>
+        <div class="field">
+          <label for="reservationScopeFilter">View</label>
+          <select id="reservationScopeFilter">
+            <option value="all">All dates</option>
+            <option value="day">Selected day</option>
+            <option value="week">Selected week</option>
+            <option value="upcoming">Upcoming only</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:-0.5rem; margin-bottom:1rem;">
+        <label for="reservationFocusDate">Focus Date</label>
+        <input id="reservationFocusDate" type="date">
       </div>
       <div class="status" id="bookingStatus" aria-live="polite"></div>
       <div class="reservation-list" id="reservationList">
@@ -438,20 +699,31 @@
       </div>
     </div>
 
-    <div class="card" style="margin-top:1.5rem;">
-      <h3>Notification Log</h3>
-      <p class="subtext">Until an SMS provider is connected, the backend logs notification dispatches here and in the local notification store.</p>
-      <div class="reservation-list" id="notificationList">
-        <div class="notification-item">
-          <strong>No notifications loaded yet</strong>
-          <p>Sign in to see phone verification and booking notification entries.</p>
+    <details class="portal-collapse" id="notificationsCard" style="margin-top:1.5rem;">
+      <summary>
+        <div>
+          <h3>Notification log</h3>
+          <p class="collapse-copy">SMS-ready history and verification events.</p>
+        </div>
+        <span class="collapse-copy">Secondary</span>
+      </summary>
+      <div class="collapse-body">
+        <div class="reservation-list" id="notificationList">
+          <div class="notification-item">
+            <strong>No notifications loaded yet</strong>
+            <p>Sign in to see phone verification and booking notification entries.</p>
+          </div>
         </div>
       </div>
+    </details>
     </div>
   </div>
 
 <script>
 const barberAccessForm = document.getElementById('barberAccessForm');
+const barberDirectoryCard = document.getElementById('barberDirectoryCard');
+const barberDirectoryList = document.getElementById('barberDirectoryList');
+const privateWorkspaceShell = document.getElementById('privateWorkspaceShell');
 const barberEmailField = document.getElementById('barberEmail');
 const barberPasswordField = document.getElementById('barberPassword');
 const barberAccessCodeField = document.getElementById('barberAccessCode');
@@ -466,10 +738,19 @@ const barberBreakStartField = document.getElementById('barberBreakStart');
 const barberBreakEndField = document.getElementById('barberBreakEnd');
 const barberSlotIntervalField = document.getElementById('barberSlotIntervalMinutes');
 const barberAvailabilityStatus = document.getElementById('barberAvailabilityStatus');
+const vacationStartDateField = document.getElementById('vacationStartDate');
+const vacationEndDateField = document.getElementById('vacationEndDate');
+const specialBlockedDateField = document.getElementById('specialBlockedDate');
+const specialBlockedTimeField = document.getElementById('specialBlockedTime');
+const applyVacationRangeBtn = document.getElementById('applyVacationRangeBtn');
+const addSpecialDateBtn = document.getElementById('addSpecialDateBtn');
+const addSpecialTimeBtn = document.getElementById('addSpecialTimeBtn');
 const barberSummary = document.getElementById('barberSummary');
 const pageTitle = document.getElementById('pageTitle');
 const bookingStatus = document.getElementById('bookingStatus');
 const reservationList = document.getElementById('reservationList');
+const nextAppointmentHighlight = document.getElementById('nextAppointmentHighlight');
+const upcomingReservationList = document.getElementById('upcomingReservationList');
 const phoneVerificationStatus = document.getElementById('phoneVerificationStatus');
 const phoneVerificationForm = document.getElementById('phoneVerificationForm');
 const phoneVerificationCodeField = document.getElementById('phoneVerificationCode');
@@ -479,6 +760,8 @@ const refreshBarberBtn = document.getElementById('refreshBarberBtn');
 const logoutBarberBtn = document.getElementById('logoutBarberBtn');
 const reservationSearchField = document.getElementById('reservationSearch');
 const reservationStatusFilter = document.getElementById('reservationStatusFilter');
+const reservationScopeFilter = document.getElementById('reservationScopeFilter');
+const reservationFocusDateField = document.getElementById('reservationFocusDate');
 const barberSessionState = document.getElementById('barberSessionState');
 const pageLead = document.getElementById('pageLead');
 const signInHeading = document.getElementById('signInHeading');
@@ -504,6 +787,56 @@ function formatBarberName(id) {
     .join(' ');
 }
 
+function toReservationTimestamp(reservation) {
+  if (!reservation?.date || !reservation?.time) return 0;
+  return new Date(`${reservation.date}T${reservation.time}:00`).getTime();
+}
+
+function getTodayIsoDate() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function addDaysToIsoDate(isoDate, amount) {
+  const base = new Date(`${isoDate}T00:00:00`);
+  base.setDate(base.getDate() + amount);
+  return base.toISOString().split('T')[0];
+}
+
+function uniqueCommaValues(value) {
+  return Array.from(new Set(
+    String(value || '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  ));
+}
+
+function appendCommaValue(field, nextValue) {
+  const values = uniqueCommaValues(field.value);
+  if (!values.includes(nextValue)) {
+    values.push(nextValue);
+  }
+  field.value = values.join(', ');
+}
+
+function buildDateRange(startDate, endDate) {
+  const start = new Date(`${startDate}T00:00:00`);
+  const end = new Date(`${endDate}T00:00:00`);
+  const result = [];
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) {
+    return result;
+  }
+
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    result.push(cursor.toISOString().split('T')[0]);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return result;
+}
+
 function setStatus(target, message, isError = false) {
   target.textContent = message;
   target.classList.toggle('error', isError);
@@ -512,21 +845,29 @@ function setStatus(target, message, isError = false) {
 function configureSignInMode() {
   if (barberId) {
     signInHeading.textContent = 'Open My Area';
-    signInCopy.textContent = 'Use your barber account email and password. The access code remains available only as a private fallback for the original invite flow.';
+    signInCopy.textContent = 'Sign in with your barber account. Use the access code only if you are still finishing the invite flow.';
     accessCodeFieldWrap.hidden = false;
-    pageLead.textContent = 'This private page is linked to a single barber profile. Sign in with your barber account to manage your own schedule, bookings, and notifications.';
+    pageLead.textContent = 'Sign in to manage your schedule, booking requests, and verification status.';
     return;
   }
 
-  pageTitle.textContent = 'Barber Login';
-  pageLead.textContent = 'This is the dedicated barber login area. After you complete account creation from the invite link, use your email and password here to enter the private barber dashboard.';
+  pageTitle.textContent = 'Barber Access Hub';
+  pageLead.textContent = 'Choose a barber from the table or sign in with your account. Team add, edit, and remove actions stay in the admin dashboard.';
   signInHeading.textContent = 'Barber Login';
-  signInCopy.textContent = 'Enter the credentials created during onboarding. After login you will be redirected to your private barber workspace.';
+  signInCopy.textContent = 'Enter the credentials created during onboarding, or pick the correct barber from the directory.';
   signInSubmitBtn.textContent = 'Login To Barber Area';
 }
 
 function setSessionState(label) {
   barberSessionState.textContent = label;
+}
+
+function setWorkspaceVisible(isVisible) {
+  privateWorkspaceShell.hidden = !isVisible;
+}
+
+function setDirectoryVisible(isVisible) {
+  barberDirectoryCard.hidden = !isVisible;
 }
 
 function saveBarberSession() {
@@ -671,6 +1012,100 @@ function updateReservationMetrics() {
   barberNotificationCount.textContent = String(cachedNotifications.length);
 }
 
+function renderUpcomingSchedule() {
+  const today = getTodayIsoDate();
+  const upcomingConfirmed = cachedReservations
+    .filter((reservation) => reservation.status === 'confirmed' && reservation.date >= today)
+    .sort((left, right) => toReservationTimestamp(left) - toReservationTimestamp(right));
+
+  const nextReservation = upcomingConfirmed[0];
+
+  if (!nextReservation) {
+    nextAppointmentHighlight.innerHTML = `
+      <div class="eyebrow">Next Appointment</div>
+      <strong>No confirmed bookings yet</strong>
+      <p>Your next accepted appointment will appear here as soon as you confirm one.</p>
+    `;
+    upcomingReservationList.innerHTML = `
+      <div class="agenda-item">
+        <strong>No upcoming schedule yet</strong>
+        <p>Accepted bookings for the next days will appear here.</p>
+      </div>
+    `;
+    return;
+  }
+
+  nextAppointmentHighlight.innerHTML = `
+    <div class="eyebrow">Next Appointment</div>
+    <strong>${nextReservation.customer.firstName} ${nextReservation.customer.lastName}</strong>
+    <p>${nextReservation.service}</p>
+    <p>${nextReservation.date} at ${nextReservation.time} · ${nextReservation.durationMinutes || '—'} min</p>
+  `;
+
+  upcomingReservationList.innerHTML = upcomingConfirmed.slice(0, 4).map((reservation) => `
+    <div class="agenda-item">
+      <strong>${reservation.customer.firstName} ${reservation.customer.lastName}</strong>
+      <p>${reservation.service}</p>
+      <p>${reservation.date} at ${reservation.time} · ${reservation.customer.phone || reservation.customer.email}</p>
+    </div>
+  `).join('');
+}
+
+function renderBarberDirectory(barbers) {
+  if (!barbers.length) {
+    barberDirectoryList.innerHTML = `
+      <tr>
+        <td colspan="3">No active barbers found yet. Use the admin dashboard to add the first barber.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  barberDirectoryList.innerHTML = barbers.map((barber) => `
+    <tr>
+      <td>
+        <strong>${barber.name}</strong>
+        <div class="collapse-copy" style="margin-top:0.35rem;">${barber.id}</div>
+      </td>
+      <td>${barber.role}</td>
+      <td>
+        <div class="table-actions">
+          <a class="action-secondary" href="/barber/${barber.id}">Open Portal</a>
+          <a class="action-secondary" href="/barber/onboard/${barber.id}">Open Invite</a>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function loadBarberDirectory() {
+  if (window.location.protocol === 'file:') {
+    barberDirectoryList.innerHTML = `
+      <tr>
+        <td colspan="3">Open this page through localhost to load the active barber list and private routes.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/barbers/list');
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || result.error || 'Unable to load the barber directory.');
+    }
+
+    renderBarberDirectory(result.barbers || []);
+  } catch (error) {
+    barberDirectoryList.innerHTML = `
+      <tr>
+        <td colspan="3">${error.message}</td>
+      </tr>
+    `;
+  }
+}
+
 function renderReservations(reservations) {
   if (!reservations.length) {
     reservationList.innerHTML = `
@@ -689,7 +1124,12 @@ function renderReservations(reservations) {
       <p><strong>Date:</strong> ${reservation.date} at ${reservation.time}</p>
       <p><strong>Contact:</strong> ${reservation.customer.email} · ${reservation.customer.phone}</p>
       <p><strong>Notes:</strong> ${reservation.notes || 'No extra notes from the client.'}</p>
+      <p><strong>Barber note:</strong> ${reservation.barberDecisionNote || 'No decision note added yet.'}</p>
       ${reservation.status === 'pending' ? `
+        <div class="field" style="margin-top:0.8rem;">
+          <label for="note-${reservation.id}">Decision Note</label>
+          <input id="note-${reservation.id}" type="text" maxlength="280" data-note-input placeholder="Optional note for this confirm/reject action">
+        </div>
         <div class="reservation-actions">
           <button type="button" data-action="confirmed" data-reservation-id="${reservation.id}">Confirm Booking</button>
           <button type="button" class="action-secondary" data-action="rejected" data-reservation-id="${reservation.id}">Reject Booking</button>
@@ -721,10 +1161,19 @@ function renderNotifications(notifications) {
 }
 
 function applyReservationFilters() {
+  const focusDate = reservationFocusDateField.value || getTodayIsoDate();
   const search = reservationSearchField.value.trim().toLowerCase();
   const status = reservationStatusFilter.value;
+  const scope = reservationScopeFilter.value;
   const filteredReservations = cachedReservations.filter((reservation) => {
     const matchesStatus = status === 'all' ? true : reservation.status === status;
+    const matchesScope = (() => {
+      if (scope === 'all') return true;
+      if (scope === 'day') return reservation.date === focusDate;
+      if (scope === 'week') return reservation.date >= focusDate && reservation.date <= addDaysToIsoDate(focusDate, 6);
+      if (scope === 'upcoming') return reservation.date >= getTodayIsoDate();
+      return true;
+    })();
     const haystack = [
       reservation.customer.firstName,
       reservation.customer.lastName,
@@ -736,14 +1185,15 @@ function applyReservationFilters() {
       reservation.notes || ''
     ].join(' ').toLowerCase();
     const matchesSearch = search ? haystack.includes(search) : true;
-    return matchesStatus && matchesSearch;
-  });
+    return matchesStatus && matchesScope && matchesSearch;
+  }).sort((left, right) => toReservationTimestamp(left) - toReservationTimestamp(right));
 
   renderReservations(filteredReservations);
 }
 
 function resetReservations() {
   cachedReservations = [];
+  renderUpcomingSchedule();
   reservationList.innerHTML = `
     <div class="reservation-item">
       <strong>No requests loaded yet</strong>
@@ -768,9 +1218,14 @@ function resetPortalState(message = 'Enter your access code to unlock your sched
   currentBarberSession = null;
   barberAccessCodeField.value = '';
   barberAvailabilityForm.reset();
+  reservationSearchField.value = '';
+  reservationStatusFilter.value = 'all';
+  reservationScopeFilter.value = 'all';
+  reservationFocusDateField.value = getTodayIsoDate();
   setAvailabilityLocked(true);
+  setWorkspaceVisible(false);
   setSessionState('Locked');
-  pageTitle.textContent = `${formatBarberName(barberId)} Availability Portal`;
+  pageTitle.textContent = `${formatBarberName(barberId)} Workspace`;
   barberSummary.innerHTML = `
     <div class="snapshot">
       <strong>No barber data loaded</strong>
@@ -801,7 +1256,11 @@ async function loadBarberReservations() {
   }
 
   cachedReservations = result.reservations || [];
+  if (!reservationFocusDateField.value) {
+    reservationFocusDateField.value = getTodayIsoDate();
+  }
   applyReservationFilters();
+  renderUpcomingSchedule();
   updateReservationMetrics();
 }
 
@@ -843,6 +1302,7 @@ async function authenticateBarber(accessCode, { silent = false } = {}) {
     token: accessCode
   };
   saveBarberSession();
+  setWorkspaceVisible(true);
   setSessionState('Active');
   pageTitle.textContent = `${result.barber.name} Availability Portal`;
   fillBarberAvailabilityForm(result.barber);
@@ -904,12 +1364,17 @@ if (!barberId) {
   configureSignInMode();
   setStatus(barberPortalStatus, 'Use your barber account email and password to open the private area.');
   setAvailabilityLocked(true);
+  reservationFocusDateField.value = getTodayIsoDate();
+  setWorkspaceVisible(false);
+  setDirectoryVisible(true);
+  loadBarberDirectory();
   resetReservations();
   resetNotifications();
   phoneVerificationForm.hidden = true;
-  setSessionState('Login mode');
+  setSessionState('Directory mode');
 } else {
   configureSignInMode();
+  setDirectoryVisible(false);
   resetPortalState();
 }
 
@@ -1005,6 +1470,42 @@ barberAvailabilityForm.addEventListener('submit', async (event) => {
   }
 });
 
+applyVacationRangeBtn.addEventListener('click', () => {
+  if (!vacationStartDateField.value || !vacationEndDateField.value) {
+    setStatus(barberAvailabilityStatus, 'Choose both vacation start and end dates first.', true);
+    return;
+  }
+
+  const vacationDates = buildDateRange(vacationStartDateField.value, vacationEndDateField.value);
+  if (!vacationDates.length) {
+    setStatus(barberAvailabilityStatus, 'Vacation range must end on or after the start date.', true);
+    return;
+  }
+
+  vacationDates.forEach((dateValue) => appendCommaValue(barberBlockedDatesField, dateValue));
+  setStatus(barberAvailabilityStatus, `Added ${vacationDates.length} vacation day${vacationDates.length > 1 ? 's' : ''} to blocked dates.`);
+});
+
+addSpecialDateBtn.addEventListener('click', () => {
+  if (!specialBlockedDateField.value) {
+    setStatus(barberAvailabilityStatus, 'Choose a date to block first.', true);
+    return;
+  }
+
+  appendCommaValue(barberBlockedDatesField, specialBlockedDateField.value);
+  setStatus(barberAvailabilityStatus, `Blocked ${specialBlockedDateField.value} successfully.`);
+});
+
+addSpecialTimeBtn.addEventListener('click', () => {
+  if (!specialBlockedTimeField.value) {
+    setStatus(barberAvailabilityStatus, 'Choose a recurring blocked time first.', true);
+    return;
+  }
+
+  appendCommaValue(barberBlockedTimesField, specialBlockedTimeField.value);
+  setStatus(barberAvailabilityStatus, `Blocked ${specialBlockedTimeField.value} successfully.`);
+});
+
 reservationList.addEventListener('click', async (event) => {
   const actionButton = event.target.closest('button[data-action]');
 
@@ -1013,13 +1514,18 @@ reservationList.addEventListener('click', async (event) => {
   }
 
   try {
+    const reservationItem = actionButton.closest('.reservation-item');
+    const noteField = reservationItem ? reservationItem.querySelector('[data-note-input]') : null;
     const response = await fetch(`/api/barber/${currentBarberSession.id}/reservations/${actionButton.dataset.reservationId}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${currentBarberSession.token}`
       },
-      body: JSON.stringify({ status: actionButton.dataset.action })
+      body: JSON.stringify({
+        status: actionButton.dataset.action,
+        decisionNote: noteField ? noteField.value.trim() : ''
+      })
     });
     const result = await response.json();
 
@@ -1115,6 +1621,8 @@ logoutBarberBtn.addEventListener('click', () => {
 
 reservationSearchField.addEventListener('input', applyReservationFilters);
 reservationStatusFilter.addEventListener('change', applyReservationFilters);
+reservationScopeFilter.addEventListener('change', applyReservationFilters);
+reservationFocusDateField.addEventListener('change', applyReservationFilters);
 
 if (BARBER_SESSION_KEY) {
   const savedBarberSession = sessionStorage.getItem(BARBER_SESSION_KEY);

@@ -249,9 +249,11 @@ const invitePasswordConfirmField = document.getElementById('invitePasswordConfir
 const inviteStatus = document.getElementById('inviteStatus');
 const inviteSnapshot = document.getElementById('inviteSnapshot');
 const inviteTitle = document.getElementById('inviteTitle');
+const inviteSubmitButton = inviteForm.querySelector('button[type="submit"]');
 
 const pathParts = window.location.pathname.split('/').filter(Boolean);
 const barberId = pathParts[0] === 'barber' && pathParts[1] === 'onboard' ? pathParts[2] : new URLSearchParams(window.location.search).get('barber');
+let currentInvite = null;
 
 function setStatus(message, isError = false) {
   inviteStatus.textContent = message;
@@ -271,7 +273,17 @@ function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || '').trim());
 }
 
+function setInviteFormDisabled(isDisabled) {
+  inviteAccessCodeField.disabled = isDisabled;
+  inviteEmailField.disabled = isDisabled;
+  invitePasswordField.disabled = isDisabled;
+  invitePasswordConfirmField.disabled = isDisabled;
+  inviteSubmitButton.disabled = isDisabled;
+  inviteSubmitButton.textContent = isDisabled ? 'Account already active' : 'Create Account';
+}
+
 function renderInvite(barber) {
+  currentInvite = barber;
   inviteTitle.textContent = `Create ${barber.name}'s account`;
   inviteSnapshot.innerHTML = `
     <div class="snapshot-box">
@@ -281,6 +293,7 @@ function renderInvite(barber) {
         <span class="tag">${barber.hasAccount ? 'Account already created' : 'Invite pending'}</span>
         <span class="tag">Login later at /barber</span>
       </div>
+      ${barber.email ? `<p style="margin-top:0.85rem;">Current account email: <strong>${escapeHtml(barber.email)}</strong></p>` : ''}
     </div>
   `;
 }
@@ -301,8 +314,14 @@ async function loadInvite() {
 
     renderInvite(result.barber);
     if (result.barber.hasAccount) {
-      setStatus('This barber account is already active. You can go straight to the barber login page.');
+      setInviteFormDisabled(true);
+      inviteAccessCodeField.value = '';
+      invitePasswordField.value = '';
+      invitePasswordConfirmField.value = '';
+      inviteEmailField.value = result.barber.email || '';
+      setStatus('This barber account is already active. Use the barber login page instead.', true);
     } else {
+      setInviteFormDisabled(false);
       setStatus('Invite loaded. Use the access code from the admin to finish your account setup.');
     }
   } catch (error) {
@@ -315,6 +334,11 @@ inviteForm.addEventListener('submit', async (event) => {
 
   if (!barberId) {
     setStatus('This invite URL is missing a barber identifier.', true);
+    return;
+  }
+
+  if (currentInvite?.hasAccount) {
+    setStatus('This barber account is already active. Use the barber login page instead.', true);
     return;
   }
 
@@ -353,6 +377,14 @@ inviteForm.addEventListener('submit', async (event) => {
     const result = await response.json();
 
     if (!response.ok) {
+      if (response.status === 409) {
+        if (currentInvite) {
+          currentInvite.hasAccount = true;
+        }
+        setInviteFormDisabled(true);
+        invitePasswordField.value = '';
+        invitePasswordConfirmField.value = '';
+      }
       throw new Error(result.message || result.error || 'Unable to create the barber account.');
     }
 

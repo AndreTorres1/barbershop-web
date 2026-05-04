@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "res_d4ef45fd",
+    "barberId": "miguel-costa",
+    "barberName": "Miguel Costa",
+    "service": "Classic Haircut — €22",
+    "durationMinutes": 45,
+    "date": "2026-05-10",
+    "time": "09:30",
+    "status": "confirmed",
+    "customer": {
+      "firstName": "Teste do andre",
+      "lastName": "Torres",
+      "email": "andretorres.mailbox@gmail.com",
+      "phone": "11111111"
+    },
+    "notes": "Tenho pressa",
+    "createdAt": "2026-04-30T21:33:35.081Z",
+    "updatedAt": "2026-05-02T21:22:15.325Z",
+    "confirmedAt": "2026-05-02T21:22:15.325Z"
+  }
+]

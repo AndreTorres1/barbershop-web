@@ -413,6 +413,7 @@ function toReservationSummary(reservation) {
     status: reservation.status,
     customer: reservation.customer,
     notes: reservation.notes,
+    barberDecisionNote: reservation.barberDecisionNote || null,
     createdAt: reservation.createdAt,
     updatedAt: reservation.updatedAt,
     confirmedAt: reservation.confirmedAt || null
@@ -1893,8 +1894,14 @@ async function handleApi(request, response, url) {
     }
 
     const nextStatus = String(body.status || '').trim().toLowerCase();
+    const decisionNote = String(body.decisionNote || '').trim();
     if (!['confirmed', 'rejected'].includes(nextStatus)) {
       sendJson(response, 400, { error: 'status must be confirmed or rejected.' });
+      return;
+    }
+
+    if (decisionNote.length > 280) {
+      sendJson(response, 400, { error: 'Decision note must stay under 280 characters.' });
       return;
     }
 
@@ -1939,6 +1946,7 @@ async function handleApi(request, response, url) {
     }
 
     reservation.status = nextStatus;
+    reservation.barberDecisionNote = decisionNote || null;
     reservation.updatedAt = new Date().toISOString();
     writeReservations(reservations);
 

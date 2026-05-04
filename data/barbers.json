@@ -1,5 +1,149 @@
 [
   {
+    "id": "miguel-costa",
+    "name": "Miguel Costa",
+    "accessCode": "MIGUEL-2026",
+    "role": "Barber",
+    "experience": "5 Years",
+    "bio": "Passionate about contemporary fades and clean lines. Always growing, always sharp. Our clients' favourite for modern styles.",
+    "supportedServices": [
+      "Classic Haircut — €22",
+      "Kids Haircut — €15"
+    ],
+    "availability": {
+      "workDays": [
+        0,
+        1,
+        3,
+        4,
+        6
+      ],
+      "blockedSlots": [
+        {
+          "time": "09:00"
+        },
+        {
+          "time": "18:00"
+        }
+      ],
+      "dayStart": "09:00",
+      "dayEnd": "19:00",
+      "breakStart": "12:00",
+      "breakEnd": "14:00",
+      "slotIntervalMinutes": 30
+    },
+    "active": true,
+    "createdAt": null,
+    "updatedAt": null,
+    "deletedAt": null,
+    "phoneNumber": "",
+    "phoneVerified": false,
+    "phoneVerificationRequestedAt": null,
+    "phoneVerifiedAt": null,
+    "phoneVerificationCodeHash": null,
+    "notificationPreference": "sms",
+    "email": "",
+    "passwordHash": null,
+    "accountCreatedAt": null,
+    "sessionTokenHash": null,
+    "sessionExpiresAt": null
+  },
+  {
+    "id": "teste",
+    "name": "Teste",
+    "accessCode": "TESTE-9510A5",
+    "role": "teste",
+    "experience": "121",
+    "bio": "999s9t testa. sa das as",
+    "phoneNumber": "+351999999999",
+    "phoneVerified": false,
+    "phoneVerificationRequestedAt": "2026-05-02T21:10:07.951Z",
+    "phoneVerifiedAt": null,
+    "phoneVerificationCodeHash": "b1f9ead6dd853a20bb2ff39eb5e070ef65c45bbcac20a0fac83a4f3462535176",
+    "email": "",
+    "passwordHash": null,
+    "accountCreatedAt": null,
+    "sessionTokenHash": null,
+    "sessionExpiresAt": null,
+    "notificationPreference": "sms",
+    "supportedServices": [
+      "Classic Haircut — €22",
+      "Hot Towel Shave — €28"
+    ],
+    "availability": {
+      "workDays": [
+        1,
+        2,
+        5,
+        6
+      ],
+      "blockedSlots": [
+        {
+          "time": "09:30"
+        },
+        {
+          "time": "11:00"
+        }
+      ],
+      "dayStart": "09:00",
+      "dayEnd": "19:00",
+      "breakStart": "12:00",
+      "breakEnd": "14:00",
+      "slotIntervalMinutes": 30
+    },
+    "active": true,
+    "createdAt": "2026-05-02T21:10:07.951Z",
+    "updatedAt": "2026-05-02T21:10:07.951Z",
+    "deletedAt": null
+  },
+  {
+    "id": "andre-goncalves",
+    "name": "André Goncalves",
+    "accessCode": "ANDREG-67AC68",
+    "role": "Estagiário",
+    "experience": "5",
+    "bio": "Estagiara",
+    "supportedServices": [
+      "Kids Haircut — €15"
+    ],
+    "availability": {
+      "workDays": [
+        0,
+        1,
+        3,
+        5
+      ],
+      "blockedSlots": [
+        {
+          "time": "11:00"
+        },
+        {
+          "time": "14:30"
+        }
+      ],
+      "dayStart": "09:00",
+      "dayEnd": "19:00",
+      "breakStart": "12:00",
+      "breakEnd": "14:00",
+      "slotIntervalMinutes": 30
+    },
+    "active": true,
+    "createdAt": null,
+    "updatedAt": "2026-04-30T21:43:01.312Z",
+    "deletedAt": null,
+    "phoneNumber": "+351912345678",
+    "phoneVerified": false,
+    "phoneVerificationRequestedAt": "2026-04-30T21:43:01.315Z",
+    "phoneVerifiedAt": null,
+    "phoneVerificationCodeHash": "3da8d624faa9c457541d2d35ff4d7fe2eb74bba0ae0e46de0d16cb27b8e82373",
+    "notificationPreference": "sms",
+    "email": "",
+    "passwordHash": null,
+    "accountCreatedAt": null,
+    "sessionTokenHash": null,
+    "sessionExpiresAt": null
+  },
+  {
     "id": "tomas-alves",
     "name": "Tomás Alves",
     "accessCode": "TOMAS-2026",
@@ -72,102 +216,6 @@
       "blockedSlots": [
         {
           "date": "2026-05-01"
-        }
-      ],
-      "dayStart": "09:00",
-      "dayEnd": "19:00",
-      "breakStart": "12:00",
-      "breakEnd": "14:00",
-      "slotIntervalMinutes": 30
-    },
-    "active": true,
-    "createdAt": null,
-    "updatedAt": null,
-    "deletedAt": null,
-    "phoneNumber": "",
-    "phoneVerified": false,
-    "phoneVerificationRequestedAt": null,
-    "phoneVerifiedAt": null,
-    "phoneVerificationCodeHash": null,
-    "notificationPreference": "sms",
-    "email": "",
-    "passwordHash": null,
-    "accountCreatedAt": null,
-    "sessionTokenHash": null,
-    "sessionExpiresAt": null
-  },
-  {
-    "id": "miguel-costa",
-    "name": "Miguel Costa",
-    "accessCode": "MIGUEL-2026",
-    "role": "Barber",
-    "experience": "5 Years",
-    "bio": "Passionate about contemporary fades and clean lines. Always growing, always sharp. Our clients' favourite for modern styles.",
-    "supportedServices": [
-      "Classic Haircut — €22",
-      "Kids Haircut — €15"
-    ],
-    "availability": {
-      "workDays": [
-        0,
-        1,
-        3,
-        4,
-        6
-      ],
-      "blockedSlots": [
-        {
-          "time": "09:00"
-        },
-        {
-          "time": "18:00"
-        }
-      ],
-      "dayStart": "09:00",
-      "dayEnd": "19:00",
-      "breakStart": "12:00",
-      "breakEnd": "14:00",
-      "slotIntervalMinutes": 30
-    },
-    "active": true,
-    "createdAt": null,
-    "updatedAt": null,
-    "deletedAt": null,
-    "phoneNumber": "",
-    "phoneVerified": false,
-    "phoneVerificationRequestedAt": null,
-    "phoneVerifiedAt": null,
-    "phoneVerificationCodeHash": null,
-    "notificationPreference": "sms",
-    "email": "",
-    "passwordHash": null,
-    "accountCreatedAt": null,
-    "sessionTokenHash": null,
-    "sessionExpiresAt": null
-  },
-  {
-    "id": "andre-goncalves",
-    "name": "André Goncalves",
-    "accessCode": "ANDREG-67AC68",
-    "role": "Estagiário",
-    "experience": "5",
-    "bio": "Estagiara",
-    "supportedServices": [
-      "Kids Haircut — €15"
-    ],
-    "availability": {
-      "workDays": [
-        0,
-        1,
-        3,
-        5
-      ],
-      "blockedSlots": [
-        {
-          "time": "11:00"
-        },
-        {
-          "time": "14:30"
         }
       ],
       "dayStart": "09:00",

@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "id": "notif_40c84332",
+    "status": "logged",
+    "createdAt": "2026-05-02T21:10:07.957Z",
+    "barberId": "teste",
+    "type": "phone_verification",
+    "channel": "sms",
+    "destination": "+351999999999",
+    "message": "Your verification code for The Sharp Cut is 129712.",
+    "metadata": {
+      "purpose": "phone_verification"
+    }
+  },
+  {
+    "id": "notif_1ba7ab2c",
+    "status": "logged",
+    "createdAt": "2026-04-30T21:43:01.327Z",
+    "barberId": "andre-goncalves",
+    "type": "phone_verification",
+    "channel": "sms",
+    "destination": "+351912345678",
+    "message": "Your verification code for The Sharp Cut is 552682.",
+    "metadata": {
+      "purpose": "phone_verification"
+    }
+  }
+]
